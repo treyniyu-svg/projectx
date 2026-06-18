@@ -809,6 +809,11 @@
             <div id="form-success" class="hidden mt-4 p-4 bg-green-50 border border-green-200 rounded-xl">
               <p class="font-body text-sm text-green-700 font-medium text-center">Thanks! We'll call you back within the hour.</p>
             </div>
+
+            <!-- Error message (hidden) -->
+            <div id="form-error" class="hidden mt-4 p-4 bg-red-50 border border-red-200 rounded-xl">
+              <p class="font-body text-sm text-red-700 font-medium text-center">Something went wrong. Please try again or call us directly at (204) 292-0971.</p>
+            </div>
           </form>
         </div>
 
@@ -953,20 +958,41 @@
     counterEls.forEach(el => counterObserver.observe(el));
 
     // ── Form submit ───────────────────────────────────────
+    const FORMSPREE_ID = 'YOUR_FORM_ID'; // replace with your Formspree form ID
     const form = document.getElementById('quote-form');
     const successMsg = document.getElementById('form-success');
-    form.addEventListener('submit', (e) => {
+    const errorMsg = document.getElementById('form-error');
+
+    form.addEventListener('submit', async (e) => {
       e.preventDefault();
       const btn = form.querySelector('button[type="submit"]');
       btn.textContent = 'Sending...';
       btn.disabled = true;
-      setTimeout(() => {
-        successMsg.classList.remove('hidden');
-        btn.textContent = 'Quote Requested!';
-        btn.classList.remove('bg-brand-green', 'hover:bg-brand-green-dark');
-        btn.classList.add('bg-green-500');
-        form.querySelectorAll('input, select, textarea').forEach(el => el.disabled = true);
-      }, 800);
+      errorMsg.classList.add('hidden');
+
+      const data = new FormData(form);
+
+      try {
+        const res = await fetch(`https://formspree.io/f/${FORMSPREE_ID}`, {
+          method: 'POST',
+          body: data,
+          headers: { Accept: 'application/json' },
+        });
+
+        if (res.ok) {
+          successMsg.classList.remove('hidden');
+          btn.textContent = 'Quote Requested!';
+          btn.classList.remove('bg-brand-green', 'hover:bg-brand-green-dark');
+          btn.classList.add('bg-green-500');
+          form.querySelectorAll('input, select, textarea').forEach(el => el.disabled = true);
+        } else {
+          throw new Error('Server error');
+        }
+      } catch {
+        errorMsg.classList.remove('hidden');
+        btn.textContent = 'Request My Free Quote';
+        btn.disabled = false;
+      }
     });
   </script>
 
