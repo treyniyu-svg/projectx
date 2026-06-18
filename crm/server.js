@@ -158,4 +158,5 @@ app.post('/api/activities', (req, res) => {
   res.json(db.prepare('SELECT * FROM activities WHERE id=?').get(result.lastInsertRowid));
 });
 
-app.listen(3001, () => console.log('204 JunkPros CRM running at http://localhost:3001'));
+const PORT = process.env.PORT || 3001;
+app.listen(PORT, () => console.log(`204 JunkPros CRM running at http://localhost:${PORT}`));

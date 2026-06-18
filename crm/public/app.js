@@ -1,4 +1,4 @@
-const API = 'http://localhost:3001/api';
+const API = '/api';
 let currentTab = 'dashboard';
 let leads = [];
 let jobs = [];
