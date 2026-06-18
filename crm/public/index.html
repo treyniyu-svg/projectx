@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>204 JunkPros CRM</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <i class="fas fa-truck"></i>
+      <span>204 JunkPros</span>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="#" class="nav-item active" data-tab="dashboard"><i class="fas fa-chart-line"></i> Dashboard</a>
+      <a href="#" class="nav-item" data-tab="leads"><i class="fas fa-users"></i> Leads</a>
+      <a href="#" class="nav-item" data-tab="pipeline"><i class="fas fa-columns"></i> Pipeline</a>
+      <a href="#" class="nav-item" data-tab="calendar"><i class="fas fa-calendar"></i> Calendar</a>
+    </nav>
+  </aside>
+  <div class="main-wrapper">
+    <header class="topbar">
+      <h1 class="page-title" id="page-title">Dashboard</h1>
+      <div class="topbar-actions">
+        <button class="btn btn-primary" id="add-lead-btn"><i class="fas fa-plus"></i> Add Lead</button>
+        <button class="btn btn-secondary" id="add-job-btn"><i class="fas fa-plus"></i> Add Job</button>
+      </div>
+    </header>
+    <main class="content">
+      <div id="tab-dashboard" class="tab-content active">
+        <div class="stats-row">
+          <div class="stat-card">
+            <div class="stat-icon"><i class="fas fa-users"></i></div>
+            <div class="stat-info">
+              <div class="stat-value" id="stat-total-leads">0</div>
+              <div class="stat-label">Total Leads</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon green"><i class="fas fa-dollar-sign"></i></div>
+            <div class="stat-info">
+              <div class="stat-value" id="stat-monthly-revenue">$0</div>
+              <div class="stat-label">Monthly Revenue</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon blue"><i class="fas fa-briefcase"></i></div>
+            <div class="stat-info">
+              <div class="stat-value" id="stat-jobs-booked">0</div>
+              <div class="stat-label">Jobs Booked</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon amber"><i class="fas fa-percentage"></i></div>
+            <div class="stat-info">
+              <div class="stat-value" id="stat-conversion-rate">0%</div>
+              <div class="stat-label">Conversion Rate</div>
+            </div>
+          </div>
+        </div>
+        <div class="charts-row">
+          <div class="chart-card">
+            <h3>Monthly Leads</h3>
+            <canvas id="bar-chart" width="500" height="250"></canvas>
+          </div>
+          <div class="chart-card small">
+            <h3>Jobs by Status</h3>
+            <canvas id="donut-chart" width="250" height="250"></canvas>
+            <div id="donut-legend" class="donut-legend"></div>
+          </div>
+        </div>
+        <div class="card">
+          <h3>Recent Leads</h3>
+          <table class="table">
+            <thead><tr><th>Name</th><th>Phone</th><th>Service</th><th>Status</th><th>Value</th></tr></thead>
+            <tbody id="recent-leads-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+      <div id="tab-leads" class="tab-content">
+        <div class="toolbar">
+          <input type="text" class="search-input" id="leads-search" placeholder="Search leads...">
+          <select class="filter-select" id="leads-status-filter">
+            <option value="">All Statuses</option>
+            <option value="new">New</option>
+            <option value="contacted">Contacted</option>
+            <option value="quoted">Quoted</option>
+            <option value="booked">Booked</option>
+            <option value="completed">Completed</option>
+            <option value="lost">Lost</option>
+          </select>
+        </div>
+        <div class="card">
+          <table class="table">
+            <thead><tr><th>Name</th><th>Phone</th><th>Email</th><th>Service</th><th>Status</th><th>Value</th><th>Date</th><th>Actions</th></tr></thead>
+            <tbody id="leads-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+      <div id="tab-pipeline" class="tab-content">
+        <div class="kanban-board" id="kanban-board">
+          <div class="kanban-column" data-status="new">
+            <div class="kanban-col-header">New <span class="col-count" id="col-count-new">0</span></div>
+            <div class="kanban-cards" id="col-new"></div>
+          </div>
+          <div class="kanban-column" data-status="quoted">
+            <div class="kanban-col-header">Quoted <span class="col-count" id="col-count-quoted">0</span></div>
+            <div class="kanban-cards" id="col-quoted"></div>
+          </div>
+          <div class="kanban-column" data-status="booked">
+            <div class="kanban-col-header">Booked <span class="col-count" id="col-count-booked">0</span></div>
+            <div class="kanban-cards" id="col-booked"></div>
+          </div>
+          <div class="kanban-column" data-status="in_progress">
+            <div class="kanban-col-header">In Progress <span class="col-count" id="col-count-in_progress">0</span></div>
+            <div class="kanban-cards" id="col-in_progress"></div>
+          </div>
+          <div class="kanban-column" data-status="completed">
+            <div class="kanban-col-header">Completed <span class="col-count" id="col-count-completed">0</span></div>
+            <div class="kanban-cards" id="col-completed"></div>
+          </div>
+        </div>
+      </div>
+      <div id="tab-calendar" class="tab-content">
+        <div class="calendar-header">
+          <button class="btn btn-secondary" id="cal-prev"><i class="fas fa-chevron-left"></i></button>
+          <h2 id="cal-month-year"></h2>
+          <button class="btn btn-secondary" id="cal-next"><i class="fas fa-chevron-right"></i></button>
+        </div>
+        <div class="calendar-grid" id="calendar-grid"></div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- Add Lead Modal -->
+<div class="modal-overlay" id="lead-modal-overlay">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 id="lead-modal-title">Add Lead</h2>
+      <button class="modal-close" id="lead-modal-close"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <form id="lead-form">
+        <input type="hidden" id="lead-id">
+        <div class="form-row">
+          <div class="form-group">
+            <label>First Name *</label>
+            <input type="text" id="lead-first-name" required>
+          </div>
+          <div class="form-group">
+            <label>Last Name *</label>
+            <input type="text" id="lead-last-name" required>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Phone</label>
+            <input type="text" id="lead-phone">
+          </div>
+          <div class="form-group">
+            <label>Email</label>
+            <input type="email" id="lead-email">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Address</label>
+          <input type="text" id="lead-address">
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Service Type</label>
+            <select id="lead-service-type">
+              <option value="">Select...</option>
+              <option value="furniture_removal">Furniture Removal</option>
+              <option value="appliance_removal">Appliance Removal</option>
+              <option value="estate_cleanout">Estate Cleanout</option>
+              <option value="construction_debris">Construction Debris</option>
+              <option value="yard_waste">Yard Waste</option>
+              <option value="hoarding_cleanup">Hoarding Cleanup</option>
+              <option value="general_junk">General Junk Removal</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Status</label>
+            <select id="lead-status">
+              <option value="new">New</option>
+              <option value="contacted">Contacted</option>
+              <option value="quoted">Quoted</option>
+              <option value="booked">Booked</option>
+              <option value="completed">Completed</option>
+              <option value="lost">Lost</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Source</label>
+            <select id="lead-source">
+              <option value="">Select...</option>
+              <option value="google">Google</option>
+              <option value="facebook">Facebook</option>
+              <option value="referral">Referral</option>
+              <option value="kijiji">Kijiji</option>
+              <option value="website">Website</option>
+              <option value="phone">Phone</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Estimated Value ($)</label>
+            <input type="number" id="lead-estimated-value" min="0" step="0.01">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Notes</label>
+          <textarea id="lead-notes" rows="3"></textarea>
+        </div>
+        <div class="form-actions">
+          <button type="button" class="btn btn-secondary" id="lead-cancel-btn">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Lead</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Add Job Modal -->
+<div class="modal-overlay" id="job-modal-overlay">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 id="job-modal-title">Add Job</h2>
+      <button class="modal-close" id="job-modal-close"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <form id="job-form">
+        <input type="hidden" id="job-id">
+        <div class="form-group">
+          <label>Job Title *</label>
+          <input type="text" id="job-title" required>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Service Type</label>
+            <select id="job-service-type">
+              <option value="">Select...</option>
+              <option value="furniture_removal">Furniture Removal</option>
+              <option value="appliance_removal">Appliance Removal</option>
+              <option value="estate_cleanout">Estate Cleanout</option>
+              <option value="construction_debris">Construction Debris</option>
+              <option value="yard_waste">Yard Waste</option>
+              <option value="hoarding_cleanup">Hoarding Cleanup</option>
+              <option value="general_junk">General Junk Removal</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Status</label>
+            <select id="job-status">
+              <option value="new">New</option>
+              <option value="quoted">Quoted</option>
+              <option value="booked">Booked</option>
+              <option value="in_progress">In Progress</option>
+              <option value="completed">Completed</option>
+              <option value="cancelled">Cancelled</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Scheduled Date</label>
+            <input type="date" id="job-scheduled-date">
+          </div>
+          <div class="form-group">
+            <label>Scheduled Time</label>
+            <input type="time" id="job-scheduled-time">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Address</label>
+          <input type="text" id="job-address">
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Amount ($)</label>
+            <input type="number" id="job-amount" min="0" step="0.01">
+          </div>
+          <div class="form-group">
+            <label>Crew</label>
+            <input type="text" id="job-crew">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Notes</label>
+          <textarea id="job-notes" rows="3"></textarea>
+        </div>
+        <div class="form-actions">
+          <button type="button" class="btn btn-secondary" id="job-cancel-btn">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Job</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Slide-in Lead Panel -->
+<div class="panel-overlay" id="panel-overlay"></div>
+<div class="slide-panel" id="lead-panel">
+  <div class="panel-header">
+    <h2 id="panel-lead-name">Lead Details</h2>
+    <button class="panel-close" id="panel-close"><i class="fas fa-times"></i></button>
+  </div>
+  <div class="panel-body" id="panel-body"></div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
