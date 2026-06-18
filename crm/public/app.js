@@ -1,13 +1,67 @@
-const API = '/api';
+// ─── Storage ──────────────────────────────────────────────────────────────────
+
+function getLeads() { return JSON.parse(localStorage.getItem('crm_leads') || '[]'); }
+function getJobs() { return JSON.parse(localStorage.getItem('crm_jobs') || '[]'); }
+function getActivities() { return JSON.parse(localStorage.getItem('crm_activities') || '[]'); }
+function saveLeads(d) { localStorage.setItem('crm_leads', JSON.stringify(d)); }
+function saveJobs(d) { localStorage.setItem('crm_jobs', JSON.stringify(d)); }
+function saveActivities(d) { localStorage.setItem('crm_activities', JSON.stringify(d)); }
+function nextId(arr) { return arr.length ? Math.max(...arr.map(x => x.id)) + 1 : 1; }
+
+// ─── Seed data ────────────────────────────────────────────────────────────────
+
+function seedIfEmpty() {
+  if (getLeads().length) return;
+
+  const leads = [
+    { id:1, first_name:'James', last_name:'Kowalski', email:'james.kowalski@gmail.com', phone:'204-555-0101', service_type:'Estate Cleanout', status:'completed', source:'Referral', address:'142 Sherbrook St, Winnipeg', notes:'Full house estate cleanout', estimated_value:1450, created_at:'2026-01-08T09:15:00' },
+    { id:2, first_name:'Patricia', last_name:'Friesen', email:'pfriesen@shaw.ca', phone:'204-555-0102', service_type:'Appliance Removal', status:'completed', source:'Google', address:'87 Kenaston Blvd, Winnipeg', notes:'Fridge, stove, washer, dryer', estimated_value:320, created_at:'2026-01-22T11:00:00' },
+    { id:3, first_name:'Tyler', last_name:'Wiebe', email:'twiebe@hotmail.com', phone:'204-555-0103', service_type:'Residential Junk Removal', status:'completed', source:'Website', address:'554 Notre Dame Ave, Winnipeg', notes:'Basement reno debris', estimated_value:580, created_at:'2026-02-05T08:30:00' },
+    { id:4, first_name:'Sandra', last_name:'Dueck', email:'sdueck@gmail.com', phone:'204-555-0104', service_type:'Residential Junk Removal', status:'completed', source:'Facebook', address:'33 Corydon Ave, Winnipeg', notes:'Old furniture after staging', estimated_value:390, created_at:'2026-02-18T13:00:00' },
+    { id:5, first_name:'Gordon', last_name:'Reimer', email:'greimer@gmail.com', phone:'204-555-0105', service_type:'Residential Junk Removal', status:'completed', source:'Kijiji', address:'209 Inkster Blvd, Winnipeg', notes:'Backyard cleanout', estimated_value:260, created_at:'2026-03-03T10:00:00' },
+    { id:6, first_name:'Michelle', last_name:'Hiebert', email:'mhiebert@outlook.com', phone:'204-555-0106', service_type:'Estate Cleanout', status:'completed', source:'Phone', address:'76 Fermor Ave, Winnipeg', notes:'Hoarding situation, 3 loads', estimated_value:1900, created_at:'2026-03-15T07:00:00' },
+    { id:7, first_name:'Kevin', last_name:'Loewen', email:'kloewen@gmail.com', phone:'204-555-0107', service_type:'Residential Junk Removal', status:'quoted', source:'Google', address:'411 McPhillips St, Winnipeg', notes:'Half truckload from garage', estimated_value:310, created_at:'2026-04-02T09:00:00' },
+    { id:8, first_name:'Brenda', last_name:'Klassen', email:'bklassen@shaw.ca', phone:'204-555-0108', service_type:'Estate Cleanout', status:'booked', source:'Referral', address:'19 Grant Ave, Winnipeg', notes:'2 bedroom bungalow cleanout', estimated_value:1100, created_at:'2026-04-10T14:00:00' },
+    { id:9, first_name:'Ryan', last_name:'Martens', email:'rmartens@gmail.com', phone:'204-555-0109', service_type:'Appliance Removal', status:'contacted', source:'Website', address:'663 Pembina Hwy, Winnipeg', notes:'4 appliances after kitchen reno', estimated_value:295, created_at:'2026-04-20T11:30:00' },
+    { id:10, first_name:'Donna', last_name:'Neufeld', email:'dneufeld@hotmail.com', phone:'204-555-0110', service_type:'Residential Junk Removal', status:'new', source:'Google', address:'128 Henderson Hwy, Winnipeg', notes:'Bathroom reno leftovers', estimated_value:450, created_at:'2026-05-03T09:45:00' },
+    { id:11, first_name:'Craig', last_name:'Penner', email:'cpenner@gmail.com', phone:'204-555-0111', service_type:'Commercial Junk Removal', status:'quoted', source:'Facebook', address:'345 Portage Ave, Winnipeg', notes:'Office furniture, 10+ desks', estimated_value:680, created_at:'2026-05-11T10:00:00' },
+    { id:12, first_name:'Heather', last_name:'Toews', email:'htoews@shaw.ca', phone:'204-555-0112', service_type:'Residential Junk Removal', status:'booked', source:'Kijiji', address:'52 River Rd, Winnipeg', notes:'General household purge', estimated_value:380, created_at:'2026-05-22T08:00:00' },
+    { id:13, first_name:'Aaron', last_name:'Giesbrecht', email:'agiesbrecht@gmail.com', phone:'204-555-0113', service_type:'Residential Junk Removal', status:'contacted', source:'Phone', address:'781 Lagimodiere Blvd, Winnipeg', notes:'Spring yard cleanup', estimated_value:220, created_at:'2026-06-01T13:00:00' },
+    { id:14, first_name:'Lori', last_name:'Schellenberg', email:'lschellenberg@outlook.com', phone:'204-555-0114', service_type:'Appliance Removal', status:'new', source:'Website', address:'234 St. Annes Rd, Winnipeg', notes:'Chest freezer and mini fridge', estimated_value:175, created_at:'2026-06-08T09:30:00' },
+    { id:15, first_name:'Frank', last_name:'Bergen', email:'fbergen@gmail.com', phone:'204-555-0115', service_type:'Estate Cleanout', status:'quoted', source:'Referral', address:'96 Roblin Blvd, Winnipeg', notes:'Investment property hoarding cleanup', estimated_value:1350, created_at:'2026-06-12T11:00:00' },
+  ];
+
+  const jobs = [
+    { id:1, lead_id:1, title:'Kowalski Estate Cleanout', status:'completed', service_type:'Estate Cleanout', scheduled_date:'2026-01-14', scheduled_time:'08:00', address:'142 Sherbrook St, Winnipeg', amount:1450, paid:true, crew:'Team B', notes:'2 full loads. Customer very happy.' },
+    { id:2, lead_id:2, title:'Friesen Appliance Pickup', status:'completed', service_type:'Appliance Removal', scheduled_date:'2026-01-27', scheduled_time:'10:00', address:'87 Kenaston Blvd, Winnipeg', amount:320, paid:true, crew:'Team A', notes:'Paid cash.' },
+    { id:3, lead_id:3, title:'Wiebe Reno Debris', status:'completed', service_type:'Residential Junk Removal', scheduled_date:'2026-02-11', scheduled_time:'09:00', address:'554 Notre Dame Ave, Winnipeg', amount:580, paid:true, crew:'Team C', notes:'Heavy drywall. Paid e-transfer.' },
+    { id:4, lead_id:4, title:'Dueck Furniture Removal', status:'completed', service_type:'Residential Junk Removal', scheduled_date:'2026-02-23', scheduled_time:'11:00', address:'33 Corydon Ave, Winnipeg', amount:390, paid:true, crew:'Team A', notes:'Completed in 2 hours.' },
+    { id:5, lead_id:5, title:'Reimer Yard Waste', status:'completed', service_type:'Residential Junk Removal', scheduled_date:'2026-03-08', scheduled_time:'08:00', address:'209 Inkster Blvd, Winnipeg', amount:260, paid:true, crew:'Team B', notes:'Early spring cleanup.' },
+    { id:6, lead_id:6, title:'Hiebert Hoarding Cleanup', status:'completed', service_type:'Estate Cleanout', scheduled_date:'2026-03-17', scheduled_time:'07:00', address:'76 Fermor Ave, Winnipeg', amount:1900, paid:true, crew:'Team B', notes:'3 truckloads. 2-day job.' },
+    { id:7, lead_id:8, title:'Klassen Estate Cleanout', status:'booked', service_type:'Estate Cleanout', scheduled_date:'2026-06-25', scheduled_time:'08:00', address:'19 Grant Ave, Winnipeg', amount:1100, paid:false, crew:'Team B', notes:'Deposit received.' },
+    { id:8, lead_id:9, title:'Martens Appliance Removal', status:'quoted', service_type:'Appliance Removal', scheduled_date:'2026-06-28', scheduled_time:'10:00', address:'663 Pembina Hwy, Winnipeg', amount:295, paid:false, crew:'', notes:'Awaiting confirmation.' },
+    { id:9, lead_id:11, title:'Penner Office Furniture', status:'quoted', service_type:'Commercial Junk Removal', scheduled_date:'2026-07-02', scheduled_time:'08:00', address:'345 Portage Ave, Winnipeg', amount:680, paid:false, crew:'Team C', notes:'Need large truck.' },
+    { id:10, lead_id:12, title:'Toews Household Junk', status:'booked', service_type:'Residential Junk Removal', scheduled_date:'2026-06-30', scheduled_time:'09:00', address:'52 River Rd, Winnipeg', amount:380, paid:false, crew:'Team A', notes:'' },
+  ];
+
+  const activities = [
+    { id:1, lead_id:1, job_id:null, type:'note', description:'Customer called to confirm availability', created_at:'2026-01-08T09:05:00' },
+    { id:2, lead_id:1, job_id:null, type:'status_change', description:'Status changed to completed', created_at:'2026-01-14T17:00:00' },
+    { id:3, lead_id:2, job_id:null, type:'email', description:'Quote sent via email', created_at:'2026-01-22T11:30:00' },
+    { id:4, lead_id:6, job_id:null, type:'note', description:'Large hoarding job - confirmed need for 3 trucks', created_at:'2026-03-15T08:00:00' },
+  ];
+
+  saveLeads(leads);
+  saveJobs(jobs);
+  saveActivities(activities);
+}
+
+// ─── Utilities ────────────────────────────────────────────────────────────────
+
 let currentTab = 'dashboard';
-let leads = [];
-let jobs = [];
 let currentMonth = new Date().getMonth();
 let currentYear = new Date().getFullYear();
 let draggedJobId = null;
-let calendarJobs = [];
-
-// ─── Utilities ────────────────────────────────────────────────────────────────
 
 function statusBadge(status) {
   if (!status) return '';
@@ -20,9 +74,8 @@ function formatDate(dateStr) {
   return d.toLocaleDateString('en-CA', { year: 'numeric', month: 'short', day: 'numeric' });
 }
 
-function formatCurrency(amount) {
-  if (!amount && amount !== 0) return '$0.00';
-  return '$' + parseFloat(amount).toLocaleString('en-CA', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+function formatCurrency(v) {
+  return '$' + parseFloat(v || 0).toLocaleString('en-CA', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
 function formatServiceType(type) {
@@ -30,55 +83,67 @@ function formatServiceType(type) {
   return type.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
 }
 
-function formatActivityType(type) {
-  const map = { note: 'Note', call: 'Call', email: 'Email', status_change: 'Status Change', visit: 'Visit' };
-  return map[type] || type;
-}
-
 // ─── Tab switching ─────────────────────────────────────────────────────────────
 
 function switchTab(tabName) {
-  document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
-  document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
-
+  document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
   const navItem = document.querySelector(`.nav-item[data-tab="${tabName}"]`);
   if (navItem) navItem.classList.add('active');
-
   const tabEl = document.getElementById(`tab-${tabName}`);
   if (tabEl) tabEl.classList.add('active');
-
   const titles = { dashboard: 'Dashboard', leads: 'Leads', pipeline: 'Pipeline', calendar: 'Calendar' };
   document.getElementById('page-title').textContent = titles[tabName] || tabName;
-
   currentTab = tabName;
-
   if (tabName === 'dashboard') loadDashboard();
   else if (tabName === 'leads') loadLeads();
   else if (tabName === 'pipeline') loadPipeline();
   else if (tabName === 'calendar') renderCalendar();
 }
 
+document.querySelectorAll('.nav-item').forEach(item => {
+  item.addEventListener('click', e => { e.preventDefault(); switchTab(item.dataset.tab); });
+});
+
 // ─── Dashboard ─────────────────────────────────────────────────────────────────
 
-async function loadDashboard() {
-  try {
-    const data = await fetch(`${API}/dashboard`).then(r => r.json());
-    document.getElementById('stat-total-leads').textContent = data.total_leads;
-    document.getElementById('stat-monthly-revenue').textContent = formatCurrency(data.monthly_revenue);
-    document.getElementById('stat-jobs-booked').textContent = data.jobs_booked;
-    document.getElementById('stat-conversion-rate').textContent = parseFloat(data.conversion_rate).toFixed(1) + '%';
-    drawBarChart(data.monthly_trend || []);
-    drawDonutChart(data.jobs_by_status || []);
-    renderRecentLeads(data.recent_leads || []);
-  } catch (e) {
-    console.error('Dashboard load error:', e);
-  }
-}
+function loadDashboard() {
+  const leads = getLeads();
+  const jobs = getJobs();
 
-function renderRecentLeads(recentLeads) {
-  const tbody = document.getElementById('recent-leads-tbody');
-  if (!tbody) return;
-  tbody.innerHTML = recentLeads.map(l => `
+  const totalLeads = leads.length;
+  const now = new Date();
+  const thisMonth = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+  const monthlyRevenue = jobs
+    .filter(j => j.status === 'completed' && j.paid && (j.scheduled_date || '').startsWith(thisMonth))
+    .reduce((s, j) => s + parseFloat(j.amount || 0), 0);
+  const jobsBooked = jobs.filter(j => ['booked','in_progress','completed'].includes(j.status)).length;
+  const converted = leads.filter(l => ['booked','completed'].includes(l.status)).length;
+  const conversionRate = totalLeads ? ((converted / totalLeads) * 100).toFixed(1) : 0;
+
+  document.getElementById('stat-total-leads').textContent = totalLeads;
+  document.getElementById('stat-monthly-revenue').textContent = formatCurrency(monthlyRevenue);
+  document.getElementById('stat-jobs-booked').textContent = jobsBooked;
+  document.getElementById('stat-conversion-rate').textContent = conversionRate + '%';
+
+  // Monthly trend (last 6 months)
+  const trend = [];
+  for (let i = 5; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+    const count = leads.filter(l => (l.created_at || '').startsWith(key)).length;
+    trend.push({ month: key, count });
+  }
+  drawBarChart(trend);
+
+  // Jobs by status
+  const statusCounts = {};
+  jobs.forEach(j => { statusCounts[j.status] = (statusCounts[j.status] || 0) + 1; });
+  drawDonutChart(Object.entries(statusCounts).map(([status, count]) => ({ status, count })));
+
+  // Recent leads
+  const recent = [...leads].sort((a,b) => new Date(b.created_at) - new Date(a.created_at)).slice(0,5);
+  document.getElementById('recent-leads-tbody').innerHTML = recent.map(l => `
     <tr style="cursor:pointer" onclick="openLeadPanel(${l.id})">
       <td>${l.first_name} ${l.last_name}</td>
       <td>${l.phone || '-'}</td>
@@ -93,45 +158,19 @@ function drawBarChart(trend) {
   const canvas = document.getElementById('bar-chart');
   if (!canvas) return;
   const ctx = canvas.getContext('2d');
-  const W = canvas.width;
-  const H = canvas.height;
-
+  const W = canvas.width, H = canvas.height;
   ctx.clearRect(0, 0, W, H);
 
-  if (!trend || trend.length === 0) {
-    ctx.fillStyle = '#94a3b8';
-    ctx.font = '14px Inter, sans-serif';
-    ctx.textAlign = 'center';
-    ctx.fillText('No data available', W / 2, H / 2);
-    return;
-  }
-
-  const padL = 40;
-  const padR = 20;
-  const padT = 20;
-  const padB = 50;
-  const chartW = W - padL - padR;
-  const chartH = H - padT - padB;
-
+  const padL = 40, padR = 20, padT = 20, padB = 50;
+  const chartW = W - padL - padR, chartH = H - padT - padB;
   const maxCount = Math.max(...trend.map(t => t.count), 1);
-  const gridLines = 5;
 
-  // Grid lines
-  ctx.strokeStyle = '#e2e8f0';
-  ctx.lineWidth = 1;
-  for (let i = 0; i <= gridLines; i++) {
-    const y = padT + chartH - (i / gridLines) * chartH;
-    ctx.beginPath();
-    ctx.moveTo(padL, y);
-    ctx.lineTo(padL + chartW, y);
-    ctx.stroke();
-
-    // Y labels
-    const val = Math.round((i / gridLines) * maxCount);
-    ctx.fillStyle = '#94a3b8';
-    ctx.font = '11px Inter, sans-serif';
-    ctx.textAlign = 'right';
-    ctx.fillText(val, padL - 6, y + 4);
+  for (let i = 0; i <= 5; i++) {
+    const y = padT + chartH - (i / 5) * chartH;
+    ctx.strokeStyle = '#e2e8f0'; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(padL + chartW, y); ctx.stroke();
+    ctx.fillStyle = '#94a3b8'; ctx.font = '11px Inter,sans-serif'; ctx.textAlign = 'right';
+    ctx.fillText(Math.round((i/5)*maxCount), padL - 6, y + 4);
   }
 
   const barWidth = Math.min(chartW / trend.length - 8, 48);
@@ -141,41 +180,29 @@ function drawBarChart(trend) {
     const barH = (item.count / maxCount) * chartH;
     const x = padL + gap + i * (barWidth + gap);
     const y = padT + chartH - barH;
+    const r = Math.min(4, barH / 2);
 
-    // Bar
     ctx.fillStyle = '#3b82f6';
     ctx.beginPath();
-    const radius = Math.min(4, barH / 2);
-    ctx.moveTo(x + radius, y);
-    ctx.lineTo(x + barWidth - radius, y);
-    ctx.quadraticCurveTo(x + barWidth, y, x + barWidth, y + radius);
+    ctx.moveTo(x + r, y);
+    ctx.lineTo(x + barWidth - r, y);
+    ctx.quadraticCurveTo(x + barWidth, y, x + barWidth, y + r);
     ctx.lineTo(x + barWidth, y + barH);
     ctx.lineTo(x, y + barH);
-    ctx.lineTo(x, y + radius);
-    ctx.quadraticCurveTo(x, y, x + radius, y);
+    ctx.lineTo(x, y + r);
+    ctx.quadraticCurveTo(x, y, x + r, y);
     ctx.closePath();
     ctx.fill();
 
-    // Count label on bar
     if (item.count > 0) {
-      ctx.fillStyle = '#1e293b';
-      ctx.font = '11px Inter, sans-serif';
-      ctx.textAlign = 'center';
+      ctx.fillStyle = '#1e293b'; ctx.font = '11px Inter,sans-serif'; ctx.textAlign = 'center';
       ctx.fillText(item.count, x + barWidth / 2, y - 4);
     }
 
-    // Month label
-    const monthStr = item.month ? item.month.substring(0, 7) : '';
-    let label = monthStr;
-    if (monthStr.length >= 7) {
-      const [yr, mo] = monthStr.split('-');
-      const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-      label = (months[parseInt(mo) - 1] || mo) + ' ' + yr.slice(2);
-    }
-    ctx.fillStyle = '#64748b';
-    ctx.font = '11px Inter, sans-serif';
-    ctx.textAlign = 'center';
-    ctx.fillText(label, x + barWidth / 2, padT + chartH + 18);
+    const [yr, mo] = item.month.split('-');
+    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    ctx.fillStyle = '#64748b'; ctx.font = '11px Inter,sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText((months[parseInt(mo)-1] || mo) + ' ' + yr.slice(2), x + barWidth/2, padT + chartH + 18);
   });
 }
 
@@ -184,36 +211,15 @@ function drawDonutChart(statusData) {
   const legendEl = document.getElementById('donut-legend');
   if (!canvas) return;
   const ctx = canvas.getContext('2d');
-  const W = canvas.width;
-  const H = canvas.height;
+  const W = canvas.width, H = canvas.height;
   ctx.clearRect(0, 0, W, H);
 
-  const colors = ['#3b82f6', '#f59e0b', '#22c55e', '#6366f1', '#ef4444', '#14b8a6', '#f97316', '#8b5cf6'];
+  const colors = ['#3b82f6','#f59e0b','#22c55e','#6366f1','#ef4444','#14b8a6','#f97316'];
+  const total = statusData.reduce((s, d) => s + d.count, 0);
+  if (!total) { if (legendEl) legendEl.innerHTML = ''; return; }
 
-  if (!statusData || statusData.length === 0) {
-    ctx.fillStyle = '#94a3b8';
-    ctx.font = '14px Inter, sans-serif';
-    ctx.textAlign = 'center';
-    ctx.fillText('No data', W / 2, H / 2);
-    if (legendEl) legendEl.innerHTML = '';
-    return;
-  }
-
-  const total = statusData.reduce((s, d) => s + (d.count || 0), 0);
-  if (total === 0) {
-    ctx.fillStyle = '#e2e8f0';
-    ctx.beginPath();
-    ctx.arc(W / 2, H / 2, 90, 0, Math.PI * 2);
-    ctx.fill();
-    if (legendEl) legendEl.innerHTML = '';
-    return;
-  }
-
-  const cx = W / 2;
-  const cy = H / 2;
-  const outerR = 90;
-  const innerR = 52;
-  let startAngle = -Math.PI / 2;
+  const cx = W/2, cy = H/2, outerR = 90, innerR = 52;
+  let startAngle = -Math.PI/2;
 
   statusData.forEach((item, i) => {
     const slice = (item.count / total) * Math.PI * 2;
@@ -226,29 +232,21 @@ function drawDonutChart(statusData) {
     startAngle += slice;
   });
 
-  // Hole
   ctx.beginPath();
   ctx.arc(cx, cy, innerR, 0, Math.PI * 2);
-  ctx.fillStyle = 'white';
+  ctx.fillStyle = '#fff';
   ctx.fill();
 
-  // Center text
-  ctx.fillStyle = '#1e293b';
-  ctx.font = 'bold 20px Inter, sans-serif';
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  ctx.fillText(total, cx, cy - 8);
-  ctx.fillStyle = '#64748b';
-  ctx.font = '11px Inter, sans-serif';
-  ctx.fillText('total jobs', cx, cy + 10);
-  ctx.textBaseline = 'alphabetic';
+  ctx.fillStyle = '#1e293b'; ctx.font = 'bold 22px Inter,sans-serif'; ctx.textAlign = 'center';
+  ctx.fillText(total, cx, cy + 8);
+  ctx.fillStyle = '#94a3b8'; ctx.font = '12px Inter,sans-serif';
+  ctx.fillText('total jobs', cx, cy + 24);
 
-  // Legend
   if (legendEl) {
     legendEl.innerHTML = statusData.map((item, i) => `
       <div class="donut-legend-item">
         <div class="donut-legend-color" style="background:${colors[i % colors.length]}"></div>
-        <span>${item.status.replace(/_/g, ' ')} &mdash; ${item.count}</span>
+        <span>${item.status.replace(/_/g,' ')} (${item.count})</span>
       </div>
     `).join('');
   }
@@ -256,30 +254,20 @@ function drawDonutChart(statusData) {
 
 // ─── Leads ─────────────────────────────────────────────────────────────────────
 
-async function loadLeads() {
-  const search = document.getElementById('leads-search').value;
+function loadLeads() {
+  let data = getLeads();
+  const search = document.getElementById('leads-search').value.toLowerCase();
   const status = document.getElementById('leads-status-filter').value;
-  let url = `${API}/leads?`;
-  if (search) url += `search=${encodeURIComponent(search)}&`;
-  if (status) url += `status=${encodeURIComponent(status)}`;
-  try {
-    leads = await fetch(url).then(r => r.json());
-    renderLeadsTable();
-  } catch (e) {
-    console.error('Load leads error:', e);
-  }
-}
 
-function renderLeadsTable() {
-  const tbody = document.getElementById('leads-tbody');
-  if (!tbody) return;
-  if (!leads.length) {
-    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:#94a3b8;padding:32px">No leads found</td></tr>';
-    return;
-  }
-  tbody.innerHTML = leads.map(l => `
+  if (search) data = data.filter(l =>
+    `${l.first_name} ${l.last_name} ${l.phone} ${l.email}`.toLowerCase().includes(search)
+  );
+  if (status) data = data.filter(l => l.status === status);
+  data = [...data].sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
+
+  document.getElementById('leads-tbody').innerHTML = data.map(l => `
     <tr>
-      <td style="cursor:pointer;font-weight:500" onclick="openLeadPanel(${l.id})">${l.first_name} ${l.last_name}</td>
+      <td style="cursor:pointer" onclick="openLeadPanel(${l.id})">${l.first_name} ${l.last_name}</td>
       <td>${l.phone || '-'}</td>
       <td>${l.email || '-'}</td>
       <td>${formatServiceType(l.service_type)}</td>
@@ -287,436 +275,366 @@ function renderLeadsTable() {
       <td>${formatCurrency(l.estimated_value)}</td>
       <td>${formatDate(l.created_at)}</td>
       <td>
-        <button class="btn-icon" onclick="openLeadModal(${JSON.stringify(l).replace(/"/g, '&quot;')})" title="Edit"><i class="fas fa-edit"></i></button>
-        <button class="btn-icon" onclick="deleteLead(${l.id})" title="Delete"><i class="fas fa-trash"></i></button>
+        <button class="btn-icon" onclick="openEditLead(${l.id})" title="Edit"><i class="fas fa-pen"></i></button>
+        <button class="btn-icon" onclick="deleteLead(${l.id})" title="Delete" style="color:#ef4444"><i class="fas fa-trash"></i></button>
       </td>
     </tr>
-  `).join('');
+  `).join('') || '<tr><td colspan="8" style="text-align:center;color:#94a3b8;padding:32px">No leads found</td></tr>';
 }
 
-// ─── Lead Panel ────────────────────────────────────────────────────────────────
+document.getElementById('leads-search').addEventListener('input', loadLeads);
+document.getElementById('leads-status-filter').addEventListener('change', loadLeads);
 
-async function openLeadPanel(id) {
-  try {
-    const lead = await fetch(`${API}/leads/${id}`).then(r => r.json());
-    document.getElementById('panel-lead-name').textContent = `${lead.first_name} ${lead.last_name}`;
+// ─── Lead Panel ───────────────────────────────────────────────────────────────
 
-    const activitiesHtml = (lead.activities || []).length === 0
-      ? '<p style="color:#94a3b8;font-size:14px">No activity yet</p>'
-      : (lead.activities || []).map(a => `
-          <div class="activity-item">
-            <div class="activity-dot"></div>
-            <div class="activity-content">
-              <p><strong>${formatActivityType(a.type)}:</strong> ${a.description}</p>
-              <small>${formatDate(a.created_at)}</small>
-            </div>
+function openLeadPanel(id) {
+  const lead = getLeads().find(l => l.id === id);
+  if (!lead) return;
+  const activities = getActivities().filter(a => a.lead_id === id).sort((a,b) => new Date(a.created_at) - new Date(b.created_at));
+  const jobs = getJobs().filter(j => j.lead_id === id);
+
+  const typeIcon = { note:'fa-note-sticky', call:'fa-phone', email:'fa-envelope', status_change:'fa-arrow-right-arrow-left' };
+
+  document.getElementById('lead-panel-name').textContent = `${lead.first_name} ${lead.last_name}`;
+  document.getElementById('lead-panel-body').innerHTML = `
+    <div class="panel-section">
+      <div class="detail-row"><span class="detail-label">Status</span><span>${statusBadge(lead.status)}</span></div>
+      <div class="detail-row"><span class="detail-label">Phone</span><span>${lead.phone || '-'}</span></div>
+      <div class="detail-row"><span class="detail-label">Email</span><span>${lead.email || '-'}</span></div>
+      <div class="detail-row"><span class="detail-label">Service</span><span>${formatServiceType(lead.service_type)}</span></div>
+      <div class="detail-row"><span class="detail-label">Value</span><span>${formatCurrency(lead.estimated_value)}</span></div>
+      <div class="detail-row"><span class="detail-label">Source</span><span>${lead.source || '-'}</span></div>
+      <div class="detail-row"><span class="detail-label">Address</span><span>${lead.address || '-'}</span></div>
+      ${lead.notes ? `<div class="detail-row"><span class="detail-label">Notes</span><span>${lead.notes}</span></div>` : ''}
+      <button class="btn btn-primary" style="margin-top:12px;font-size:13px;padding:7px 14px" onclick="openEditLead(${lead.id})"><i class="fas fa-pen"></i> Edit</button>
+    </div>
+    ${jobs.length ? `
+    <div class="panel-section">
+      <div class="panel-section-title">Jobs (${jobs.length})</div>
+      ${jobs.map(j => `<div class="panel-job-item"><span>${j.title}</span>${statusBadge(j.status)}</div>`).join('')}
+    </div>` : ''}
+    <div class="panel-section">
+      <div class="panel-section-title">Activity</div>
+      ${activities.length ? activities.map(a => `
+        <div class="timeline-item">
+          <div class="timeline-dot"><i class="fas ${typeIcon[a.type] || 'fa-circle-dot'}"></i></div>
+          <div>
+            <div style="font-size:13px;color:#334155">${a.description}</div>
+            <div style="font-size:11px;color:#94a3b8;margin-top:2px">${formatDate(a.created_at)}</div>
           </div>
-        `).join('');
-
-    const jobsHtml = (lead.jobs || []).length === 0
-      ? '<p style="color:#94a3b8;font-size:14px">No jobs linked</p>'
-      : (lead.jobs || []).map(j => `
-          <div style="background:#f8fafc;border-radius:8px;padding:10px;margin-bottom:8px;font-size:13px">
-            <div style="font-weight:600;margin-bottom:4px">${j.title}</div>
-            <div style="color:#64748b">${statusBadge(j.status)} &nbsp; ${formatCurrency(j.amount)} &nbsp; ${j.scheduled_date ? formatDate(j.scheduled_date) : 'No date'}</div>
-          </div>
-        `).join('');
-
-    document.getElementById('panel-body').innerHTML = `
-      <div class="panel-section">
-        <h4>Contact Info</h4>
-        <div class="panel-field"><div class="label">Phone</div><span>${lead.phone || '-'}</span></div>
-        <div class="panel-field"><div class="label">Email</div><span>${lead.email || '-'}</span></div>
-        <div class="panel-field"><div class="label">Address</div><span>${lead.address || '-'}</span></div>
-        <div class="panel-field"><div class="label">Source</div><span>${lead.source ? lead.source.replace(/\b\w/g, l => l.toUpperCase()) : '-'}</span></div>
-      </div>
-      <div class="panel-section">
-        <h4>Lead Details</h4>
-        <div class="panel-field"><div class="label">Service Type</div><span>${formatServiceType(lead.service_type)}</span></div>
-        <div class="panel-field"><div class="label">Status</div>${statusBadge(lead.status)}</div>
-        <div class="panel-field"><div class="label">Estimated Value</div><span>${formatCurrency(lead.estimated_value)}</span></div>
-        <div class="panel-field"><div class="label">Created</div><span>${formatDate(lead.created_at)}</span></div>
-        ${lead.notes ? `<div class="panel-field"><div class="label">Notes</div><span>${lead.notes}</span></div>` : ''}
-      </div>
-      <div class="panel-section">
-        <h4>Jobs</h4>
-        ${jobsHtml}
-      </div>
-      <div class="panel-section">
-        <h4>Activity Timeline</h4>
-        ${activitiesHtml}
-        <div class="add-note-form">
-          <textarea class="note-input-area" id="note-text" placeholder="Add a note..."></textarea>
-          <button class="btn btn-primary" id="add-note-btn" style="align-self:flex-end"><i class="fas fa-plus"></i> Add Note</button>
         </div>
+      `).join('') : '<p style="font-size:13px;color:#94a3b8">No activity yet.</p>'}
+      <div style="display:flex;gap:8px;margin-top:12px">
+        <input type="text" id="note-input" placeholder="Add a note…" style="flex:1;padding:8px 12px;border:1px solid #e2e8f0;border-radius:8px;font-size:13px;outline:none;font-family:inherit">
+        <button class="btn btn-primary" style="font-size:13px;padding:7px 14px" onclick="addNote(${lead.id})">Add</button>
       </div>
-    `;
+    </div>
+  `;
 
-    document.getElementById('panel-overlay').classList.add('active');
-    document.getElementById('lead-panel').classList.add('active');
-
-    document.getElementById('add-note-btn').addEventListener('click', async () => {
-      const text = document.getElementById('note-text').value.trim();
-      if (!text) return;
-      await fetch(`${API}/activities`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ lead_id: id, type: 'note', description: text })
-      });
-      openLeadPanel(id);
-    });
-  } catch (e) {
-    console.error('Open lead panel error:', e);
-  }
+  document.getElementById('lead-panel').classList.add('open');
+  document.getElementById('panel-overlay').classList.add('show');
 }
 
-function closeLeadPanel() {
-  document.getElementById('panel-overlay').classList.remove('active');
-  document.getElementById('lead-panel').classList.remove('active');
+function addNote(leadId) {
+  const input = document.getElementById('note-input');
+  const text = input.value.trim();
+  if (!text) return;
+  const activities = getActivities();
+  activities.push({ id: nextId(activities), lead_id: leadId, job_id: null, type: 'note', description: text, created_at: new Date().toISOString() });
+  saveActivities(activities);
+  openLeadPanel(leadId);
 }
 
-// ─── Lead Modal ────────────────────────────────────────────────────────────────
+function closePanel() {
+  document.getElementById('lead-panel').classList.remove('open');
+  document.getElementById('panel-overlay').classList.remove('show');
+}
+document.getElementById('panel-close').addEventListener('click', closePanel);
+document.getElementById('panel-overlay').addEventListener('click', closePanel);
 
-function openLeadModal(lead = null) {
-  document.getElementById('lead-id').value = lead ? lead.id : '';
-  document.getElementById('lead-first-name').value = lead ? lead.first_name : '';
-  document.getElementById('lead-last-name').value = lead ? lead.last_name : '';
-  document.getElementById('lead-phone').value = lead ? (lead.phone || '') : '';
-  document.getElementById('lead-email').value = lead ? (lead.email || '') : '';
-  document.getElementById('lead-address').value = lead ? (lead.address || '') : '';
-  document.getElementById('lead-service-type').value = lead ? (lead.service_type || '') : '';
-  document.getElementById('lead-status').value = lead ? (lead.status || 'new') : 'new';
-  document.getElementById('lead-source').value = lead ? (lead.source || '') : '';
-  document.getElementById('lead-estimated-value').value = lead ? (lead.estimated_value || '') : '';
-  document.getElementById('lead-notes').value = lead ? (lead.notes || '') : '';
-  document.getElementById('lead-modal-title').textContent = lead ? 'Edit Lead' : 'Add Lead';
-  document.getElementById('lead-modal-overlay').classList.add('active');
+// ─── Lead Modal ───────────────────────────────────────────────────────────────
+
+let editingLeadId = null;
+
+function openAddLead() {
+  editingLeadId = null;
+  document.getElementById('lead-modal-title').textContent = 'Add Lead';
+  document.getElementById('lead-form').reset();
+  document.getElementById('lead-id').value = '';
+  document.getElementById('lead-modal-overlay').classList.add('open');
 }
 
-function closeLeadModal() {
-  document.getElementById('lead-modal-overlay').classList.remove('active');
+function openEditLead(id) {
+  const lead = getLeads().find(l => l.id === id);
+  if (!lead) return;
+  editingLeadId = id;
+  document.getElementById('lead-modal-title').textContent = 'Edit Lead';
+  document.getElementById('lead-id').value = lead.id;
+  document.getElementById('lead-first-name').value = lead.first_name || '';
+  document.getElementById('lead-last-name').value = lead.last_name || '';
+  document.getElementById('lead-phone').value = lead.phone || '';
+  document.getElementById('lead-email').value = lead.email || '';
+  document.getElementById('lead-address').value = lead.address || '';
+  document.getElementById('lead-service').value = lead.service_type || '';
+  document.getElementById('lead-status').value = lead.status || 'new';
+  document.getElementById('lead-source').value = lead.source || '';
+  document.getElementById('lead-value').value = lead.estimated_value || '';
+  document.getElementById('lead-notes').value = lead.notes || '';
+  document.getElementById('lead-modal-overlay').classList.add('open');
 }
 
-async function submitLeadForm(e) {
+document.getElementById('add-lead-btn').addEventListener('click', openAddLead);
+document.getElementById('lead-modal-close').addEventListener('click', () => document.getElementById('lead-modal-overlay').classList.remove('open'));
+document.getElementById('lead-modal-overlay').addEventListener('click', e => { if (e.target === e.currentTarget) e.currentTarget.classList.remove('open'); });
+
+document.getElementById('lead-form').addEventListener('submit', e => {
   e.preventDefault();
-  const id = document.getElementById('lead-id').value;
-  const data = {
-    first_name: document.getElementById('lead-first-name').value,
-    last_name: document.getElementById('lead-last-name').value,
-    phone: document.getElementById('lead-phone').value,
-    email: document.getElementById('lead-email').value,
-    address: document.getElementById('lead-address').value,
-    service_type: document.getElementById('lead-service-type').value,
+  const leads = getLeads();
+  const body = {
+    first_name: document.getElementById('lead-first-name').value.trim(),
+    last_name: document.getElementById('lead-last-name').value.trim(),
+    phone: document.getElementById('lead-phone').value.trim(),
+    email: document.getElementById('lead-email').value.trim(),
+    address: document.getElementById('lead-address').value.trim(),
+    service_type: document.getElementById('lead-service').value,
     status: document.getElementById('lead-status').value,
     source: document.getElementById('lead-source').value,
-    estimated_value: parseFloat(document.getElementById('lead-estimated-value').value) || 0,
-    notes: document.getElementById('lead-notes').value
+    estimated_value: parseFloat(document.getElementById('lead-value').value) || 0,
+    notes: document.getElementById('lead-notes').value.trim(),
   };
 
-  try {
-    if (id) {
-      await fetch(`${API}/leads/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
-    } else {
-      await fetch(`${API}/leads`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
-    }
-    closeLeadModal();
-    if (currentTab === 'leads') loadLeads();
-    if (currentTab === 'dashboard') loadDashboard();
-  } catch (err) {
-    console.error('Submit lead error:', err);
+  if (editingLeadId) {
+    const idx = leads.findIndex(l => l.id === editingLeadId);
+    if (idx !== -1) leads[idx] = { ...leads[idx], ...body };
+  } else {
+    leads.push({ id: nextId(leads), ...body, created_at: new Date().toISOString() });
   }
+
+  saveLeads(leads);
+  document.getElementById('lead-modal-overlay').classList.remove('open');
+  if (currentTab === 'leads') loadLeads();
+  if (currentTab === 'dashboard') loadDashboard();
+});
+
+function deleteLead(id) {
+  if (!confirm('Delete this lead?')) return;
+  saveLeads(getLeads().filter(l => l.id !== id));
+  saveJobs(getJobs().filter(j => j.lead_id !== id));
+  saveActivities(getActivities().filter(a => a.lead_id !== id));
+  loadLeads();
 }
 
-async function deleteLead(id) {
-  if (!confirm('Delete this lead and all associated data?')) return;
-  try {
-    await fetch(`${API}/leads/${id}`, { method: 'DELETE' });
-    loadLeads();
-    if (currentTab === 'dashboard') loadDashboard();
-  } catch (e) {
-    console.error('Delete lead error:', e);
-  }
-}
+// ─── Pipeline (Kanban) ────────────────────────────────────────────────────────
 
-// ─── Pipeline / Kanban ──────────────────────────────────────────────────────────
+function loadPipeline() {
+  const jobs = getJobs();
+  const leads = getLeads();
+  const statuses = ['new','quoted','booked','in_progress','completed'];
 
-async function loadPipeline() {
-  try {
-    jobs = await fetch(`${API}/jobs`).then(r => r.json());
-
-    ['new', 'quoted', 'booked', 'in_progress', 'completed'].forEach(status => {
-      const col = document.getElementById(`col-${status}`);
-      const cnt = document.getElementById(`col-count-${status}`);
-      if (col) col.innerHTML = '';
-      if (cnt) cnt.textContent = '0';
-    });
-
-    jobs.forEach(job => {
-      const col = document.getElementById(`col-${job.status}`);
-      if (!col) return;
-
-      const card = document.createElement('div');
-      card.className = 'kanban-card';
-      card.draggable = true;
-      card.dataset.jobId = job.id;
-      card.innerHTML = `
-        <div class="kanban-card-title">${job.title}</div>
-        <div class="kanban-card-meta">
-          <span><i class="fas fa-user" style="width:12px;margin-right:4px"></i>${job.first_name || ''} ${job.last_name || ''}</span>
-          <span><i class="fas fa-dollar-sign" style="width:12px;margin-right:4px"></i>${formatCurrency(job.amount)}</span>
-          ${job.scheduled_date ? `<span><i class="fas fa-calendar" style="width:12px;margin-right:4px"></i>${formatDate(job.scheduled_date)}</span>` : ''}
+  statuses.forEach(status => {
+    const col = document.getElementById(`col-${status}`);
+    const cnt = document.getElementById(`col-count-${status}`);
+    const colJobs = jobs.filter(j => j.status === status);
+    cnt.textContent = colJobs.length;
+    col.innerHTML = colJobs.map(j => {
+      const lead = leads.find(l => l.id === j.lead_id);
+      return `
+        <div class="kanban-card" draggable="true" data-id="${j.id}" onclick="openJobDetail(${j.id})">
+          <div class="kanban-card-title">${j.title}</div>
+          ${lead ? `<div class="kanban-card-meta"><i class="fas fa-user"></i> ${lead.first_name} ${lead.last_name}</div>` : ''}
+          ${j.service_type ? `<div class="kanban-card-meta"><i class="fas fa-wrench"></i> ${formatServiceType(j.service_type)}</div>` : ''}
+          ${j.scheduled_date ? `<div class="kanban-card-meta"><i class="fas fa-calendar"></i> ${formatDate(j.scheduled_date)}</div>` : ''}
+          <div class="kanban-card-amount">${formatCurrency(j.amount)}</div>
         </div>
       `;
+    }).join('');
+  });
 
-      card.addEventListener('dragstart', e => {
-        draggedJobId = job.id;
-        e.dataTransfer.effectAllowed = 'move';
-        setTimeout(() => card.style.opacity = '0.5', 0);
-      });
-      card.addEventListener('dragend', () => {
-        card.style.opacity = '1';
-        draggedJobId = null;
-      });
-      card.addEventListener('click', () => showJobDetail(job));
-      col.appendChild(card);
+  initDragDrop();
+}
 
-      const countEl = document.getElementById(`col-count-${job.status}`);
-      if (countEl) countEl.textContent = parseInt(countEl.textContent) + 1;
+function initDragDrop() {
+  document.querySelectorAll('.kanban-card').forEach(card => {
+    card.addEventListener('dragstart', e => {
+      draggedJobId = parseInt(card.dataset.id);
+      card.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'move';
     });
+    card.addEventListener('dragend', () => card.classList.remove('dragging'));
+  });
 
-    document.querySelectorAll('.kanban-cards').forEach(colEl => {
-      colEl.addEventListener('dragover', e => {
-        e.preventDefault();
-        colEl.closest('.kanban-column').classList.add('drag-over');
-      });
-      colEl.addEventListener('dragleave', e => {
-        if (!colEl.contains(e.relatedTarget)) {
-          colEl.closest('.kanban-column').classList.remove('drag-over');
-        }
-      });
-      colEl.addEventListener('drop', e => {
-        e.preventDefault();
-        colEl.closest('.kanban-column').classList.remove('drag-over');
-        const newStatus = colEl.closest('.kanban-column').dataset.status;
-        if (draggedJobId) moveJob(draggedJobId, newStatus);
-      });
+  document.querySelectorAll('.kanban-column').forEach(col => {
+    col.addEventListener('dragover', e => { e.preventDefault(); col.classList.add('drag-over'); });
+    col.addEventListener('dragleave', () => col.classList.remove('drag-over'));
+    col.addEventListener('drop', e => {
+      e.preventDefault();
+      col.classList.remove('drag-over');
+      if (!draggedJobId) return;
+      const newStatus = col.dataset.status;
+      const jobs = getJobs();
+      const idx = jobs.findIndex(j => j.id === draggedJobId);
+      if (idx !== -1) jobs[idx].status = newStatus;
+      saveJobs(jobs);
+      loadPipeline();
     });
-  } catch (e) {
-    console.error('Load pipeline error:', e);
-  }
+  });
 }
 
-async function moveJob(id, status) {
-  try {
-    await fetch(`${API}/jobs/${id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ status })
-    });
-    loadPipeline();
-  } catch (e) {
-    console.error('Move job error:', e);
-  }
+// ─── Job Modal ────────────────────────────────────────────────────────────────
+
+let editingJobId = null;
+let viewingJobId = null;
+
+function populateLeadDropdown(selectedId) {
+  const leads = getLeads().sort((a,b) => a.first_name.localeCompare(b.first_name));
+  document.getElementById('job-lead').innerHTML =
+    '<option value="">No lead</option>' +
+    leads.map(l => `<option value="${l.id}" ${l.id === selectedId ? 'selected' : ''}>${l.first_name} ${l.last_name}</option>`).join('');
 }
 
-function showJobDetail(job) {
-  const lines = [
-    `Job: ${job.title}`,
-    `Status: ${job.status}`,
-    `Amount: ${formatCurrency(job.amount)}`,
-    `Date: ${job.scheduled_date ? formatDate(job.scheduled_date) : 'Not scheduled'}`,
-    `Time: ${job.scheduled_time || 'Not set'}`,
-    `Crew: ${job.crew || 'Not assigned'}`,
-    `Address: ${job.address || '-'}`,
-    `Notes: ${job.notes || 'None'}`
-  ];
-  alert(lines.join('\n'));
+function openAddJob() {
+  editingJobId = null;
+  document.getElementById('job-modal-title').textContent = 'Add Job';
+  document.getElementById('job-form').reset();
+  document.getElementById('job-id').value = '';
+  populateLeadDropdown(null);
+  document.getElementById('job-modal-overlay').classList.add('open');
 }
 
-// ─── Job Modal ──────────────────────────────────────────────────────────────────
-
-function openJobModal(job = null) {
-  document.getElementById('job-id').value = job ? job.id : '';
-  document.getElementById('job-title').value = job ? job.title : '';
-  document.getElementById('job-service-type').value = job ? (job.service_type || '') : '';
-  document.getElementById('job-status').value = job ? (job.status || 'new') : 'new';
-  document.getElementById('job-scheduled-date').value = job ? (job.scheduled_date || '') : '';
-  document.getElementById('job-scheduled-time').value = job ? (job.scheduled_time || '') : '';
-  document.getElementById('job-address').value = job ? (job.address || '') : '';
-  document.getElementById('job-amount').value = job ? (job.amount || '') : '';
-  document.getElementById('job-crew').value = job ? (job.crew || '') : '';
-  document.getElementById('job-notes').value = job ? (job.notes || '') : '';
-  document.getElementById('job-modal-title').textContent = job ? 'Edit Job' : 'Add Job';
-  document.getElementById('job-modal-overlay').classList.add('active');
+function openEditJob(id) {
+  const job = getJobs().find(j => j.id === id);
+  if (!job) return;
+  editingJobId = id;
+  document.getElementById('job-modal-title').textContent = 'Edit Job';
+  document.getElementById('job-id').value = job.id;
+  document.getElementById('job-title').value = job.title || '';
+  document.getElementById('job-status').value = job.status || 'new';
+  document.getElementById('job-service').value = job.service_type || '';
+  document.getElementById('job-date').value = job.scheduled_date || '';
+  document.getElementById('job-time').value = job.scheduled_time || '';
+  document.getElementById('job-amount').value = job.amount || '';
+  document.getElementById('job-paid').value = job.paid ? '1' : '0';
+  document.getElementById('job-crew').value = job.crew || '';
+  document.getElementById('job-address').value = job.address || '';
+  document.getElementById('job-notes').value = job.notes || '';
+  populateLeadDropdown(job.lead_id);
+  document.getElementById('job-modal-overlay').classList.add('open');
+  document.getElementById('job-detail-overlay').classList.remove('open');
 }
 
-function closeJobModal() {
-  document.getElementById('job-modal-overlay').classList.remove('active');
-}
+document.getElementById('add-job-btn').addEventListener('click', openAddJob);
+document.getElementById('job-modal-close').addEventListener('click', () => document.getElementById('job-modal-overlay').classList.remove('open'));
+document.getElementById('job-modal-overlay').addEventListener('click', e => { if (e.target === e.currentTarget) e.currentTarget.classList.remove('open'); });
 
-async function submitJobForm(e) {
+document.getElementById('job-form').addEventListener('submit', e => {
   e.preventDefault();
-  const id = document.getElementById('job-id').value;
-  const data = {
-    title: document.getElementById('job-title').value,
-    service_type: document.getElementById('job-service-type').value,
+  const jobs = getJobs();
+  const body = {
+    lead_id: parseInt(document.getElementById('job-lead').value) || null,
+    title: document.getElementById('job-title').value.trim(),
     status: document.getElementById('job-status').value,
-    scheduled_date: document.getElementById('job-scheduled-date').value,
-    scheduled_time: document.getElementById('job-scheduled-time').value,
-    address: document.getElementById('job-address').value,
+    service_type: document.getElementById('job-service').value,
+    scheduled_date: document.getElementById('job-date').value,
+    scheduled_time: document.getElementById('job-time').value,
     amount: parseFloat(document.getElementById('job-amount').value) || 0,
-    crew: document.getElementById('job-crew').value,
-    notes: document.getElementById('job-notes').value
+    paid: document.getElementById('job-paid').value === '1',
+    crew: document.getElementById('job-crew').value.trim(),
+    address: document.getElementById('job-address').value.trim(),
+    notes: document.getElementById('job-notes').value.trim(),
   };
 
-  try {
-    if (id) {
-      await fetch(`${API}/jobs/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
-    } else {
-      await fetch(`${API}/jobs`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
-    }
-    closeJobModal();
-    if (currentTab === 'pipeline') loadPipeline();
-    if (currentTab === 'calendar') renderCalendar();
-    if (currentTab === 'dashboard') loadDashboard();
-  } catch (err) {
-    console.error('Submit job error:', err);
+  if (editingJobId) {
+    const idx = jobs.findIndex(j => j.id === editingJobId);
+    if (idx !== -1) jobs[idx] = { ...jobs[idx], ...body };
+  } else {
+    jobs.push({ id: nextId(jobs), ...body, created_at: new Date().toISOString() });
   }
+
+  saveJobs(jobs);
+  document.getElementById('job-modal-overlay').classList.remove('open');
+  if (currentTab === 'pipeline') loadPipeline();
+  if (currentTab === 'calendar') renderCalendar();
+  if (currentTab === 'dashboard') loadDashboard();
+});
+
+// ─── Job Detail ───────────────────────────────────────────────────────────────
+
+function openJobDetail(id) {
+  const job = getJobs().find(j => j.id === id);
+  if (!job) return;
+  viewingJobId = id;
+  const lead = job.lead_id ? getLeads().find(l => l.id === job.lead_id) : null;
+
+  document.getElementById('job-detail-title').textContent = job.title;
+  document.getElementById('job-detail-body').innerHTML = `
+    <div class="detail-row"><span class="detail-label">Status</span>${statusBadge(job.status)}</div>
+    <div class="detail-row"><span class="detail-label">Customer</span><span>${lead ? lead.first_name + ' ' + lead.last_name : '-'}</span></div>
+    <div class="detail-row"><span class="detail-label">Service</span><span>${formatServiceType(job.service_type)}</span></div>
+    <div class="detail-row"><span class="detail-label">Scheduled</span><span>${formatDate(job.scheduled_date)} ${job.scheduled_time || ''}</span></div>
+    <div class="detail-row"><span class="detail-label">Amount</span><span>${formatCurrency(job.amount)}</span></div>
+    <div class="detail-row"><span class="detail-label">Paid</span><span>${job.paid ? '✅ Yes' : '❌ No'}</span></div>
+    <div class="detail-row"><span class="detail-label">Crew</span><span>${job.crew || '-'}</span></div>
+    <div class="detail-row"><span class="detail-label">Address</span><span>${job.address || '-'}</span></div>
+    ${job.notes ? `<div class="detail-row"><span class="detail-label">Notes</span><span>${job.notes}</span></div>` : ''}
+  `;
+
+  document.getElementById('job-detail-overlay').classList.add('open');
 }
 
-// ─── Calendar ──────────────────────────────────────────────────────────────────
+document.getElementById('job-detail-close').addEventListener('click', () => document.getElementById('job-detail-overlay').classList.remove('open'));
+document.getElementById('job-detail-edit').addEventListener('click', () => openEditJob(viewingJobId));
+document.getElementById('job-detail-overlay').addEventListener('click', e => { if (e.target === e.currentTarget) e.currentTarget.classList.remove('open'); });
 
-async function renderCalendar() {
-  const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-  document.getElementById('cal-month-year').textContent = `${monthNames[currentMonth]} ${currentYear}`;
+// ─── Calendar ─────────────────────────────────────────────────────────────────
 
-  try {
-    calendarJobs = await fetch(`${API}/calendar`).then(r => r.json());
-  } catch (e) {
-    calendarJobs = [];
-    console.error('Calendar load error:', e);
-  }
+function renderCalendar() {
+  const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  document.getElementById('cal-month-year').textContent = `${months[currentMonth]} ${currentYear}`;
 
-  const grid = document.getElementById('calendar-grid');
-  grid.innerHTML = '';
-
-  // Day headers
-  ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].forEach(d => {
-    const h = document.createElement('div');
-    h.className = 'cal-day-header';
-    h.textContent = d;
-    grid.appendChild(h);
-  });
-
+  const jobs = getJobs().filter(j => j.scheduled_date);
+  const today = new Date();
   const firstDay = new Date(currentYear, currentMonth, 1).getDay();
   const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
-  const prevMonthDays = new Date(currentYear, currentMonth, 0).getDate();
-  const today = new Date();
+  const daysInPrev = new Date(currentYear, currentMonth, 0).getDate();
 
-  // Prev month padding
-  for (let i = 0; i < firstDay; i++) {
-    const d = document.createElement('div');
-    d.className = 'cal-day other-month';
-    d.innerHTML = `<div class="cal-day-num">${prevMonthDays - firstDay + i + 1}</div>`;
-    grid.appendChild(d);
+  const dayNames = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  let html = dayNames.map(d => `<div class="cal-day-header">${d}</div>`).join('');
+
+  for (let i = firstDay - 1; i >= 0; i--) {
+    html += `<div class="cal-day other-month"><div class="cal-day-num">${daysInPrev - i}</div></div>`;
   }
 
-  // Current month days
-  for (let day = 1; day <= daysInMonth; day++) {
-    const d = document.createElement('div');
-    d.className = 'cal-day';
-
-    const isToday = today.getFullYear() === currentYear && today.getMonth() === currentMonth && today.getDate() === day;
-    if (isToday) d.classList.add('today');
-
-    const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-    d.innerHTML = `<div class="cal-day-num">${day}</div>`;
-
-    const dayJobs = calendarJobs.filter(j => j.scheduled_date === dateStr);
-    dayJobs.forEach(job => {
-      const chip = document.createElement('div');
-      chip.className = 'job-chip';
-      chip.textContent = job.title;
-      chip.title = `${job.title}${job.first_name ? ' - ' + job.first_name + ' ' + job.last_name : ''}${job.scheduled_time ? ' @ ' + job.scheduled_time : ''}`;
-      chip.addEventListener('click', () => showJobDetail(job));
-      d.appendChild(chip);
-    });
-
-    grid.appendChild(d);
+  for (let d = 1; d <= daysInMonth; d++) {
+    const dateStr = `${currentYear}-${String(currentMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const isToday = d === today.getDate() && currentMonth === today.getMonth() && currentYear === today.getFullYear();
+    const dayJobs = jobs.filter(j => j.scheduled_date === dateStr);
+    const chips = dayJobs.map(j => `
+      <div class="cal-chip cal-chip-${j.status}" onclick="event.stopPropagation();openJobDetail(${j.id})" title="${j.title}">
+        ${j.scheduled_time ? j.scheduled_time.slice(0,5)+' ' : ''}${j.title.length > 13 ? j.title.slice(0,13)+'…' : j.title}
+      </div>
+    `).join('');
+    html += `<div class="cal-day${isToday ? ' today' : ''}"><div class="cal-day-num">${d}</div>${chips}</div>`;
   }
 
-  // Next month padding
-  const totalCells = firstDay + daysInMonth;
-  const remaining = totalCells % 7 === 0 ? 0 : 7 - (totalCells % 7);
-  for (let i = 1; i <= remaining; i++) {
-    const d = document.createElement('div');
-    d.className = 'cal-day other-month';
-    d.innerHTML = `<div class="cal-day-num">${i}</div>`;
-    grid.appendChild(d);
+  const total = firstDay + daysInMonth;
+  const rem = total % 7 === 0 ? 0 : 7 - (total % 7);
+  for (let i = 1; i <= rem; i++) {
+    html += `<div class="cal-day other-month"><div class="cal-day-num">${i}</div></div>`;
   }
+
+  document.getElementById('calendar-grid').innerHTML = html;
 }
 
-// ─── Init ──────────────────────────────────────────────────────────────────────
-
-document.addEventListener('DOMContentLoaded', () => {
-  // Nav clicks
-  document.querySelectorAll('.nav-item').forEach(item => {
-    item.addEventListener('click', e => {
-      e.preventDefault();
-      switchTab(item.dataset.tab);
-    });
-  });
-
-  // Add Lead button
-  document.getElementById('add-lead-btn').addEventListener('click', () => openLeadModal());
-
-  // Add Job button
-  document.getElementById('add-job-btn').addEventListener('click', () => openJobModal());
-
-  // Lead form submit
-  document.getElementById('lead-form').addEventListener('submit', submitLeadForm);
-
-  // Job form submit
-  document.getElementById('job-form').addEventListener('submit', submitJobForm);
-
-  // Lead modal close
-  document.getElementById('lead-modal-close').addEventListener('click', closeLeadModal);
-  document.getElementById('lead-cancel-btn').addEventListener('click', closeLeadModal);
-  document.getElementById('lead-modal-overlay').addEventListener('click', e => {
-    if (e.target === document.getElementById('lead-modal-overlay')) closeLeadModal();
-  });
-
-  // Job modal close
-  document.getElementById('job-modal-close').addEventListener('click', closeJobModal);
-  document.getElementById('job-cancel-btn').addEventListener('click', closeJobModal);
-  document.getElementById('job-modal-overlay').addEventListener('click', e => {
-    if (e.target === document.getElementById('job-modal-overlay')) closeJobModal();
-  });
-
-  // Panel close
-  document.getElementById('panel-close').addEventListener('click', closeLeadPanel);
-  document.getElementById('panel-overlay').addEventListener('click', closeLeadPanel);
-
-  // Calendar prev/next
-  document.getElementById('cal-prev').addEventListener('click', () => {
-    currentMonth--;
-    if (currentMonth < 0) { currentMonth = 11; currentYear--; }
-    renderCalendar();
-  });
-  document.getElementById('cal-next').addEventListener('click', () => {
-    currentMonth++;
-    if (currentMonth > 11) { currentMonth = 0; currentYear++; }
-    renderCalendar();
-  });
-
-  // Search/filter debounce on leads tab
-  let searchTimeout;
-  document.getElementById('leads-search').addEventListener('input', () => {
-    clearTimeout(searchTimeout);
-    searchTimeout = setTimeout(loadLeads, 300);
-  });
-  document.getElementById('leads-status-filter').addEventListener('change', () => loadLeads());
-
-  // Initial load
-  loadDashboard();
+document.getElementById('cal-prev').addEventListener('click', () => {
+  currentMonth--; if (currentMonth < 0) { currentMonth = 11; currentYear--; }
+  renderCalendar();
 });
+document.getElementById('cal-next').addEventListener('click', () => {
+  currentMonth++; if (currentMonth > 11) { currentMonth = 0; currentYear++; }
+  renderCalendar();
+});
+
+// ─── Init ─────────────────────────────────────────────────────────────────────
+
+seedIfEmpty();
+loadDashboard();

@@ -22,6 +22,7 @@
       <a href="#" class="nav-item" data-tab="calendar"><i class="fas fa-calendar"></i> Calendar</a>
     </nav>
   </aside>
+
   <div class="main-wrapper">
     <header class="topbar">
       <h1 class="page-title" id="page-title">Dashboard</h1>
@@ -30,7 +31,9 @@
         <button class="btn btn-secondary" id="add-job-btn"><i class="fas fa-plus"></i> Add Job</button>
       </div>
     </header>
+
     <main class="content">
+      <!-- Dashboard -->
       <div id="tab-dashboard" class="tab-content active">
         <div class="stats-row">
           <div class="stat-card">
@@ -65,11 +68,11 @@
         <div class="charts-row">
           <div class="chart-card">
             <h3>Monthly Leads</h3>
-            <canvas id="bar-chart" width="500" height="250"></canvas>
+            <canvas id="bar-chart" width="500" height="220"></canvas>
           </div>
           <div class="chart-card small">
             <h3>Jobs by Status</h3>
-            <canvas id="donut-chart" width="250" height="250"></canvas>
+            <canvas id="donut-chart" width="220" height="220"></canvas>
             <div id="donut-legend" class="donut-legend"></div>
           </div>
         </div>
@@ -81,6 +84,8 @@
           </table>
         </div>
       </div>
+
+      <!-- Leads -->
       <div id="tab-leads" class="tab-content">
         <div class="toolbar">
           <input type="text" class="search-input" id="leads-search" placeholder="Search leads...">
@@ -101,8 +106,10 @@
           </table>
         </div>
       </div>
+
+      <!-- Pipeline -->
       <div id="tab-pipeline" class="tab-content">
-        <div class="kanban-board" id="kanban-board">
+        <div class="kanban-board">
           <div class="kanban-column" data-status="new">
             <div class="kanban-col-header">New <span class="col-count" id="col-count-new">0</span></div>
             <div class="kanban-cards" id="col-new"></div>
@@ -125,6 +132,8 @@
           </div>
         </div>
       </div>
+
+      <!-- Calendar -->
       <div id="tab-calendar" class="tab-content">
         <div class="calendar-header">
           <button class="btn btn-secondary" id="cal-prev"><i class="fas fa-chevron-left"></i></button>
@@ -137,7 +146,17 @@
   </div>
 </div>
 
-<!-- Add Lead Modal -->
+<!-- Lead Slide Panel -->
+<div class="panel-overlay" id="panel-overlay"></div>
+<div class="slide-panel" id="lead-panel">
+  <div class="panel-header">
+    <h2 id="lead-panel-name">Lead Details</h2>
+    <button class="panel-close" id="panel-close"><i class="fas fa-times"></i></button>
+  </div>
+  <div class="panel-body" id="lead-panel-body"></div>
+</div>
+
+<!-- Add/Edit Lead Modal -->
 <div class="modal-overlay" id="lead-modal-overlay">
   <div class="modal">
     <div class="modal-header">
@@ -174,15 +193,14 @@
         <div class="form-row">
           <div class="form-group">
             <label>Service Type</label>
-            <select id="lead-service-type">
+            <select id="lead-service">
               <option value="">Select...</option>
-              <option value="furniture_removal">Furniture Removal</option>
-              <option value="appliance_removal">Appliance Removal</option>
-              <option value="estate_cleanout">Estate Cleanout</option>
-              <option value="construction_debris">Construction Debris</option>
-              <option value="yard_waste">Yard Waste</option>
-              <option value="hoarding_cleanup">Hoarding Cleanup</option>
-              <option value="general_junk">General Junk Removal</option>
+              <option value="Residential Junk Removal">Residential Junk Removal</option>
+              <option value="Commercial Junk Removal">Commercial Junk Removal</option>
+              <option value="Estate Cleanout">Estate Cleanout</option>
+              <option value="Appliance Removal">Appliance Removal</option>
+              <option value="Demolition">Demolition</option>
+              <option value="Eco-Friendly Disposal">Eco-Friendly Disposal</option>
             </select>
           </div>
           <div class="form-group">
@@ -202,17 +220,17 @@
             <label>Source</label>
             <select id="lead-source">
               <option value="">Select...</option>
-              <option value="google">Google</option>
-              <option value="facebook">Facebook</option>
-              <option value="referral">Referral</option>
-              <option value="kijiji">Kijiji</option>
-              <option value="website">Website</option>
-              <option value="phone">Phone</option>
+              <option value="Website">Website</option>
+              <option value="Google">Google</option>
+              <option value="Facebook">Facebook</option>
+              <option value="Referral">Referral</option>
+              <option value="Phone">Phone</option>
+              <option value="Kijiji">Kijiji</option>
             </select>
           </div>
           <div class="form-group">
             <label>Estimated Value ($)</label>
-            <input type="number" id="lead-estimated-value" min="0" step="0.01">
+            <input type="number" id="lead-value" min="0" step="0.01">
           </div>
         </div>
         <div class="form-group">
@@ -220,7 +238,7 @@
           <textarea id="lead-notes" rows="3"></textarea>
         </div>
         <div class="form-actions">
-          <button type="button" class="btn btn-secondary" id="lead-cancel-btn">Cancel</button>
+          <button type="button" class="btn btn-secondary" onclick="document.getElementById('lead-modal-overlay').classList.remove('open')">Cancel</button>
           <button type="submit" class="btn btn-primary">Save Lead</button>
         </div>
       </form>
@@ -228,7 +246,7 @@
   </div>
 </div>
 
-<!-- Add Job Modal -->
+<!-- Add/Edit Job Modal -->
 <div class="modal-overlay" id="job-modal-overlay">
   <div class="modal">
     <div class="modal-header">
@@ -244,17 +262,8 @@
         </div>
         <div class="form-row">
           <div class="form-group">
-            <label>Service Type</label>
-            <select id="job-service-type">
-              <option value="">Select...</option>
-              <option value="furniture_removal">Furniture Removal</option>
-              <option value="appliance_removal">Appliance Removal</option>
-              <option value="estate_cleanout">Estate Cleanout</option>
-              <option value="construction_debris">Construction Debris</option>
-              <option value="yard_waste">Yard Waste</option>
-              <option value="hoarding_cleanup">Hoarding Cleanup</option>
-              <option value="general_junk">General Junk Removal</option>
-            </select>
+            <label>Customer (Lead)</label>
+            <select id="job-lead"></select>
           </div>
           <div class="form-group">
             <label>Status</label>
@@ -270,17 +279,34 @@
         </div>
         <div class="form-row">
           <div class="form-group">
+            <label>Service Type</label>
+            <select id="job-service">
+              <option value="">Select...</option>
+              <option value="Residential Junk Removal">Residential Junk Removal</option>
+              <option value="Commercial Junk Removal">Commercial Junk Removal</option>
+              <option value="Estate Cleanout">Estate Cleanout</option>
+              <option value="Appliance Removal">Appliance Removal</option>
+              <option value="Demolition">Demolition</option>
+              <option value="Eco-Friendly Disposal">Eco-Friendly Disposal</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Paid</label>
+            <select id="job-paid">
+              <option value="0">Not Paid</option>
+              <option value="1">Paid</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
             <label>Scheduled Date</label>
-            <input type="date" id="job-scheduled-date">
+            <input type="date" id="job-date">
           </div>
           <div class="form-group">
             <label>Scheduled Time</label>
-            <input type="time" id="job-scheduled-time">
+            <input type="time" id="job-time">
           </div>
-        </div>
-        <div class="form-group">
-          <label>Address</label>
-          <input type="text" id="job-address">
         </div>
         <div class="form-row">
           <div class="form-group">
@@ -289,15 +315,19 @@
           </div>
           <div class="form-group">
             <label>Crew</label>
-            <input type="text" id="job-crew">
+            <input type="text" id="job-crew" placeholder="Team A, B, C...">
           </div>
+        </div>
+        <div class="form-group">
+          <label>Address</label>
+          <input type="text" id="job-address">
         </div>
         <div class="form-group">
           <label>Notes</label>
           <textarea id="job-notes" rows="3"></textarea>
         </div>
         <div class="form-actions">
-          <button type="button" class="btn btn-secondary" id="job-cancel-btn">Cancel</button>
+          <button type="button" class="btn btn-secondary" onclick="document.getElementById('job-modal-overlay').classList.remove('open')">Cancel</button>
           <button type="submit" class="btn btn-primary">Save Job</button>
         </div>
       </form>
@@ -305,14 +335,19 @@
   </div>
 </div>
 
-<!-- Slide-in Lead Panel -->
-<div class="panel-overlay" id="panel-overlay"></div>
-<div class="slide-panel" id="lead-panel">
-  <div class="panel-header">
-    <h2 id="panel-lead-name">Lead Details</h2>
-    <button class="panel-close" id="panel-close"><i class="fas fa-times"></i></button>
+<!-- Job Detail Modal -->
+<div class="modal-overlay" id="job-detail-overlay">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 id="job-detail-title">Job Detail</h2>
+      <button class="modal-close" id="job-detail-close"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body" id="job-detail-body"></div>
+    <div class="form-actions" style="padding:0 24px 24px">
+      <button class="btn btn-secondary" id="job-detail-close-btn" onclick="document.getElementById('job-detail-overlay').classList.remove('open')">Close</button>
+      <button class="btn btn-primary" id="job-detail-edit">Edit Job</button>
+    </div>
   </div>
-  <div class="panel-body" id="panel-body"></div>
 </div>
 
 <script src="app.js"></script>

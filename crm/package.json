@@ -2,16 +2,10 @@
   "name": "204-junkpros-crm",
   "version": "1.0.0",
   "description": "CRM system for 204 JunkPros",
-  "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "npx serve public -l $PORT"
   },
   "engines": {
     "node": ">=18.0.0"
-  },
-  "dependencies": {
-    "better-sqlite3": "^9.4.3",
-    "cors": "^2.8.5",
-    "express": "^4.18.2"
   }
 }
