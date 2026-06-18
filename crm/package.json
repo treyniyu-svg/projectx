@@ -1,9 +1,11 @@
 {
   "name": "204-junkpros-crm",
   "version": "1.0.0",
-  "description": "CRM system for 204 JunkPros",
   "scripts": {
-    "start": "npx serve public -l $PORT"
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
   },
   "engines": {
     "node": ">=18.0.0"
