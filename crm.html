@@ -1,0 +1,1636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>204 JunkPros — CRM</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Open+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+  theme: { extend: {
+    colors: {
+      green: { DEFAULT:'#78C828', dark:'#5FA31A', light:'#A3E63A' },
+      ink: { DEFAULT:'#0A0A0A', mid:'#1A1A1A', soft:'#2A2A2A' }
+    },
+    fontFamily: { head:['Poppins','sans-serif'], body:['Open Sans','sans-serif'] }
+  }}
+}
+</script>
+<style>
+*{box-sizing:border-box}body{font-family:'Open Sans',sans-serif;background:#F4F5F7}
+h1,h2,h3,h4,h5{font-family:'Poppins',sans-serif}
+.sidebar-link{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:10px;cursor:pointer;transition:all .18s;color:#555;font-size:14px;font-weight:500;text-decoration:none}
+.sidebar-link:hover,.sidebar-link.active{background:#78C82815;color:#0A0A0A}
+.sidebar-link.active svg{color:#78C828}
+.card{background:#fff;border-radius:14px;border:1px solid #E8E8E8;padding:20px}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 16px;border-radius:9px;font-size:13px;font-weight:600;cursor:pointer;border:none;transition:all .18s;font-family:'Poppins',sans-serif}
+.btn-green{background:#78C828;color:#0A0A0A}.btn-green:hover{background:#5FA31A}
+.btn-dark{background:#0A0A0A;color:#fff}.btn-dark:hover{background:#2A2A2A}
+.btn-ghost{background:transparent;border:1.5px solid #ddd;color:#444}.btn-ghost:hover{border-color:#78C828;color:#0A0A0A}
+.btn-red{background:#FEE2E2;color:#DC2626}.btn-red:hover{background:#FCA5A5}
+.input{width:100%;padding:9px 12px;border:1.5px solid #E0E0E0;border-radius:9px;font-size:13px;outline:none;font-family:'Open Sans',sans-serif;transition:border .18s}
+.input:focus{border-color:#78C828}
+.label{display:block;font-size:12px;font-weight:600;color:#555;margin-bottom:5px;font-family:'Poppins',sans-serif}
+.badge{display:inline-flex;align-items:center;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600;font-family:'Poppins',sans-serif}
+.badge-green{background:#DCFCE7;color:#16A34A}
+.badge-yellow{background:#FEF9C3;color:#CA8A04}
+.badge-blue{background:#DBEAFE;color:#1D4ED8}
+.badge-gray{background:#F3F4F6;color:#6B7280}
+.badge-red{background:#FEE2E2;color:#DC2626}
+.badge-purple{background:#EDE9FE;color:#7C3AED}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:100;display:flex;align-items:center;justify-content:center;padding:16px}
+.modal{background:#fff;border-radius:16px;width:100%;max-width:560px;max-height:90vh;overflow-y:auto;padding:28px}
+.modal-lg{max-width:720px}
+.modal-xl{max-width:900px}
+.tab-btn{padding:8px 16px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:none;background:transparent;color:#888;font-family:'Poppins',sans-serif;transition:all .18s}
+.tab-btn.active{background:#78C828;color:#0A0A0A}
+.kanban-col{background:#F8F9FA;border-radius:12px;padding:14px;min-height:200px}
+.kanban-card{background:#fff;border:1.5px solid #E8E8E8;border-radius:10px;padding:12px;margin-bottom:10px;cursor:grab;transition:box-shadow .18s}
+.kanban-card:hover{box-shadow:0 4px 16px rgba(0,0,0,.08);border-color:#78C828}
+.kanban-card.dragging{opacity:.5}
+.kanban-col.drag-over{background:#78C82815;border:2px dashed #78C828}
+.step-dot{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;font-family:'Poppins',sans-serif;flex-shrink:0}
+.step-dot.done{background:#78C828;color:#0A0A0A}
+.step-dot.active{background:#0A0A0A;color:#78C828}
+.step-dot.todo{background:#E8E8E8;color:#999}
+.load-bar{height:10px;background:#E8E8E8;border-radius:99px;overflow:hidden;position:relative}
+.load-fill{height:100%;background:linear-gradient(90deg,#78C828,#5FA31A);border-radius:99px;transition:width .4s}
+.profit-positive{color:#16A34A}
+.profit-negative{color:#DC2626}
+.section{display:none}.section.active{display:block}
+#sidebar{width:220px;flex-shrink:0}
+@media(max-width:768px){#sidebar{display:none}#mobile-nav-bar{display:flex}}
+#mobile-nav-bar{display:none;position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid #eee;z-index:50;padding:8px}
+.cal-cell{min-height:90px;border:1px solid #E8E8E8;padding:6px;border-radius:6px}
+.cal-job{font-size:11px;padding:3px 6px;border-radius:4px;margin-bottom:2px;background:#78C82820;color:#2d6b00;font-weight:600;cursor:pointer}
+select.input{appearance:auto}
+textarea.input{resize:vertical;min-height:70px}
+.photo-drop{border:2px dashed #ddd;border-radius:12px;padding:32px;text-align:center;cursor:pointer;transition:all .2s}
+.photo-drop:hover,.photo-drop.dragover{border-color:#78C828;background:#78C82808}
+.price-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid #F0F0F0;font-size:13px}
+.price-row:last-child{border-bottom:none;font-weight:700;font-size:15px;color:#0A0A0A}
+.margin-bar{height:8px;border-radius:99px;background:#E8E8E8;overflow:hidden;margin-top:6px}
+.margin-fill-good{background:linear-gradient(90deg,#78C828,#5FA31A)}
+.margin-fill-bad{background:#DC2626}
+</style>
+</head>
+<body class="flex h-screen overflow-hidden">
+
+<!-- ═══ SIDEBAR ═══ -->
+<aside id="sidebar" class="flex flex-col bg-white border-r border-gray-100 py-5 px-3 overflow-y-auto">
+  <div class="flex items-center gap-2 px-3 mb-6">
+    <img src="logo.svg" alt="204 JunkPros" class="h-10 w-auto"/>
+  </div>
+  <nav class="flex flex-col gap-1 flex-1">
+    <a class="sidebar-link active" onclick="nav('dashboard')" data-section="dashboard">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+      Dashboard
+    </a>
+    <a class="sidebar-link" onclick="nav('estimate-new')" data-section="estimate-new">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+      New Estimate
+    </a>
+    <a class="sidebar-link" onclick="nav('estimates')" data-section="estimates">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+      Estimates
+    </a>
+    <a class="sidebar-link" onclick="nav('dispatch')" data-section="dispatch">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+      Dispatch
+    </a>
+    <a class="sidebar-link" onclick="nav('schedule')" data-section="schedule">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+      Schedule
+    </a>
+    <a class="sidebar-link" onclick="nav('customers')" data-section="customers">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+      Customers
+    </a>
+    <a class="sidebar-link" onclick="nav('invoices')" data-section="invoices">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+      Invoices
+    </a>
+    <div class="mt-auto border-t border-gray-100 pt-3">
+      <a class="sidebar-link" onclick="nav('settings')" data-section="settings">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+        Settings
+      </a>
+    </div>
+  </nav>
+</aside>
+
+<!-- ═══ MAIN ═══ -->
+<main class="flex-1 overflow-y-auto">
+
+<!-- Top bar -->
+<div class="bg-white border-b border-gray-100 px-6 py-3 flex items-center justify-between sticky top-0 z-40">
+  <div id="top-title" class="font-head font-700 text-lg text-ink">Dashboard</div>
+  <div class="flex items-center gap-3">
+    <button class="btn btn-green" onclick="nav('estimate-new')">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
+      New Estimate
+    </button>
+  </div>
+</div>
+
+<div class="p-6">
+
+<!-- ════════════════════════ DASHBOARD ════════════════════════ -->
+<div id="sec-dashboard" class="section active">
+  <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6" id="dash-stats"></div>
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+    <div class="card">
+      <h3 class="font-head font-700 text-sm mb-4 flex items-center gap-2">
+        <svg class="w-4 h-4 text-green" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+        Upcoming Jobs
+      </h3>
+      <div id="dash-upcoming"></div>
+    </div>
+    <div class="card">
+      <h3 class="font-head font-700 text-sm mb-4 flex items-center gap-2">
+        <svg class="w-4 h-4 text-green" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        Recent Activity
+      </h3>
+      <div id="dash-recent"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════ NEW ESTIMATE ════════════════════════ -->
+<div id="sec-estimate-new" class="section">
+  <!-- Step indicator -->
+  <div class="flex items-center gap-3 mb-6" id="est-steps"></div>
+
+  <!-- Step 1: Customer -->
+  <div id="est-s1" class="est-step card">
+    <h2 class="font-head font-700 text-base mb-4">Customer Information</h2>
+    <div class="mb-3">
+      <label class="label">Search Existing Customer</label>
+      <input class="input" id="cust-search" placeholder="Name, phone, or email…" oninput="searchCustomers(this.value)"/>
+      <div id="cust-results" class="mt-2 border border-gray-100 rounded-xl overflow-hidden hidden"></div>
+    </div>
+    <div class="text-center text-sm text-gray-400 my-3">— or create new —</div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+      <div><label class="label">Full Name *</label><input class="input" id="e-cname" placeholder="Jane Smith"/></div>
+      <div><label class="label">Phone</label><input class="input" id="e-cphone" placeholder="(204) 555-0100"/></div>
+      <div><label class="label">Email</label><input class="input" id="e-cemail" placeholder="jane@email.com"/></div>
+      <div><label class="label">Address</label><input class="input" id="e-caddr" placeholder="123 Main St, Winnipeg"/></div>
+    </div>
+    <div class="mt-4 flex justify-end">
+      <button class="btn btn-dark" onclick="estNext(2)">Next: Photo & Load →</button>
+    </div>
+  </div>
+
+  <!-- Step 2: Photo & AI -->
+  <div id="est-s2" class="est-step card hidden">
+    <h2 class="font-head font-700 text-base mb-4">Photo Analysis <span class="text-sm font-normal text-gray-400 ml-1">(optional but recommended)</span></h2>
+    <div class="photo-drop" id="photo-drop" onclick="document.getElementById('photo-input').click()" ondragover="photoDragOver(event)" ondrop="photoDrop(event)">
+      <input type="file" id="photo-input" accept="image/*" class="hidden" onchange="handlePhoto(this.files[0])"/>
+      <svg class="w-10 h-10 text-gray-300 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+      <p class="text-sm text-gray-400 font-head font-600">Click or drag a photo of the junk</p>
+      <p class="text-xs text-gray-300 mt-1">Claude AI will estimate load size and detect items automatically</p>
+    </div>
+    <div id="ai-loading" class="hidden text-center py-6">
+      <div class="inline-flex items-center gap-3 text-sm text-gray-500">
+        <svg class="w-5 h-5 animate-spin text-green" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
+        Claude is analyzing the photo…
+      </div>
+    </div>
+    <div id="ai-result" class="hidden mt-4"></div>
+    <div class="mt-4 flex justify-between">
+      <button class="btn btn-ghost" onclick="estNext(1)">← Back</button>
+      <button class="btn btn-dark" onclick="estNext(3)">Next: Items & Pricing →</button>
+    </div>
+  </div>
+
+  <!-- Step 3: Load + Items -->
+  <div id="est-s3" class="est-step card hidden">
+    <h2 class="font-head font-700 text-base mb-4">Load Size, Items & Modifiers</h2>
+
+    <!-- Load selector -->
+    <div class="mb-5">
+      <label class="label">Truck Load Percentage</label>
+      <div class="grid grid-cols-5 gap-2 mt-2" id="load-btns"></div>
+      <div class="mt-3">
+        <div class="flex justify-between text-xs text-gray-400 mb-1">
+          <span>Empty</span><span>Full (15 cu yd)</span>
+        </div>
+        <div class="load-bar"><div class="load-fill" id="load-fill-bar" style="width:0%"></div></div>
+      </div>
+    </div>
+
+    <!-- Access modifier -->
+    <div class="mb-5">
+      <label class="label">Access Difficulty</label>
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-2" id="access-btns"></div>
+    </div>
+
+    <!-- Items -->
+    <div class="mb-5">
+      <label class="label">Individual Items <span class="font-normal text-gray-400">(add items for à-la-carte pricing)</span></label>
+      <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 mt-2 max-h-48 overflow-y-auto pr-1" id="item-btns"></div>
+    </div>
+
+    <!-- Dense materials -->
+    <div class="mb-5">
+      <label class="label">Dense / Heavy Materials <span class="font-normal text-red-400 text-xs">⚠ weight-based surcharge</span></label>
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-2" id="dense-btns"></div>
+    </div>
+
+    <!-- Hazmat -->
+    <div class="mb-5">
+      <label class="label">Hazmat / Special Disposal</label>
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-2" id="hazmat-btns"></div>
+    </div>
+
+    <!-- Dump fee -->
+    <div class="grid grid-cols-2 gap-3 mb-2">
+      <div>
+        <label class="label">Estimated Dump Fee ($)</label>
+        <input class="input" type="number" id="e-dumpfee" value="85" oninput="recalc()"/>
+      </div>
+      <div>
+        <label class="label">Notes</label>
+        <input class="input" id="e-notes" placeholder="Any special notes…"/>
+      </div>
+    </div>
+
+    <div class="mt-4 flex justify-between">
+      <button class="btn btn-ghost" onclick="estNext(2)">← Back</button>
+      <button class="btn btn-dark" onclick="estNext(4)">Next: Review →</button>
+    </div>
+  </div>
+
+  <!-- Step 4: Review & Save -->
+  <div id="est-s4" class="est-step card hidden">
+    <h2 class="font-head font-700 text-base mb-4">Estimate Review</h2>
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+      <div>
+        <p class="label mb-2">Price Breakdown</p>
+        <div id="price-breakdown" class="bg-gray-50 rounded-xl p-4"></div>
+      </div>
+      <div>
+        <p class="label mb-2">Profitability Estimate</p>
+        <div id="profit-breakdown" class="bg-gray-50 rounded-xl p-4"></div>
+      </div>
+    </div>
+    <div class="mt-5 flex flex-wrap gap-3 justify-between items-center">
+      <button class="btn btn-ghost" onclick="estNext(3)">← Back</button>
+      <div class="flex gap-3">
+        <button class="btn btn-ghost" onclick="saveEstimate('draft')">Save Draft</button>
+        <button class="btn btn-green" onclick="saveEstimate('approved')">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+          Approve & Schedule Job
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════ ESTIMATES LIST ════════════════════════ -->
+<div id="sec-estimates" class="section">
+  <div class="flex items-center justify-between mb-4">
+    <div class="flex gap-2" id="est-filter-tabs">
+      <button class="tab-btn active" onclick="filterEstimates('all',this)">All</button>
+      <button class="tab-btn" onclick="filterEstimates('draft',this)">Draft</button>
+      <button class="tab-btn" onclick="filterEstimates('approved',this)">Approved</button>
+      <button class="tab-btn" onclick="filterEstimates('converted',this)">Converted</button>
+    </div>
+    <input class="input w-48" placeholder="Search…" oninput="estSearch(this.value)" id="est-search-input"/>
+  </div>
+  <div class="card p-0 overflow-hidden">
+    <table class="w-full text-sm">
+      <thead class="bg-gray-50 border-b border-gray-100">
+        <tr>
+          <th class="text-left p-4 font-head font-600 text-gray-500 text-xs">Customer</th>
+          <th class="text-left p-4 font-head font-600 text-gray-500 text-xs">Load</th>
+          <th class="text-left p-4 font-head font-600 text-gray-500 text-xs">Total</th>
+          <th class="text-left p-4 font-head font-600 text-gray-500 text-xs">Margin</th>
+          <th class="text-left p-4 font-head font-600 text-gray-500 text-xs">Status</th>
+          <th class="text-left p-4 font-head font-600 text-gray-500 text-xs">Date</th>
+          <th class="p-4"></th>
+        </tr>
+      </thead>
+      <tbody id="est-tbody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ════════════════════════ DISPATCH ════════════════════════ -->
+<div id="sec-dispatch" class="section">
+  <div class="flex items-center justify-between mb-4">
+    <h2 class="font-head font-700">Dispatch Board</h2>
+    <button class="btn btn-green" onclick="openJobModal(null)">+ New Job</button>
+  </div>
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" id="kanban-board"></div>
+</div>
+
+<!-- ════════════════════════ SCHEDULE ════════════════════════ -->
+<div id="sec-schedule" class="section">
+  <div class="flex items-center justify-between mb-4">
+    <div class="flex items-center gap-3">
+      <button class="btn btn-ghost" onclick="shiftWeek(-1)">← Prev</button>
+      <h2 class="font-head font-700" id="cal-title"></h2>
+      <button class="btn btn-ghost" onclick="shiftWeek(1)">Next →</button>
+    </div>
+    <button class="btn btn-ghost" onclick="shiftWeek(0)">Today</button>
+  </div>
+  <div class="card p-0 overflow-x-auto">
+    <div id="cal-grid" class="grid grid-cols-7 min-w-[700px]"></div>
+  </div>
+</div>
+
+<!-- ════════════════════════ CUSTOMERS ════════════════════════ -->
+<div id="sec-customers" class="section">
+  <div class="flex items-center justify-between mb-4">
+    <input class="input w-64" placeholder="Search customers…" oninput="loadCustomers(this.value)"/>
+    <button class="btn btn-green" onclick="openCustomerModal(null)">+ Add Customer</button>
+  </div>
+  <div class="card p-0 overflow-hidden">
+    <table class="w-full text-sm">
+      <thead class="bg-gray-50 border-b border-gray-100">
+        <tr>
+          <th class="text-left p-4 font-head font-600 text-gray-500 text-xs">Name</th>
+          <th class="text-left p-4 font-head font-600 text-gray-500 text-xs">Phone</th>
+          <th class="text-left p-4 font-head font-600 text-gray-500 text-xs">Email</th>
+          <th class="text-left p-4 font-head font-600 text-gray-500 text-xs">Address</th>
+          <th class="p-4"></th>
+        </tr>
+      </thead>
+      <tbody id="cust-tbody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ════════════════════════ INVOICES ════════════════════════ -->
+<div id="sec-invoices" class="section">
+  <div class="flex items-center justify-between mb-4">
+    <div class="flex gap-2">
+      <button class="tab-btn active" onclick="filterInvoices('all',this)">All</button>
+      <button class="tab-btn" onclick="filterInvoices('unpaid',this)">Unpaid</button>
+      <button class="tab-btn" onclick="filterInvoices('paid',this)">Paid</button>
+    </div>
+    <button class="btn btn-green" onclick="openInvoiceModal(null)">+ New Invoice</button>
+  </div>
+  <div class="card p-0 overflow-hidden">
+    <table class="w-full text-sm">
+      <thead class="bg-gray-50 border-b border-gray-100">
+        <tr>
+          <th class="text-left p-4 font-head font-600 text-gray-500 text-xs">#</th>
+          <th class="text-left p-4 font-head font-600 text-gray-500 text-xs">Customer</th>
+          <th class="text-left p-4 font-head font-600 text-gray-500 text-xs">Amount</th>
+          <th class="text-left p-4 font-head font-600 text-gray-500 text-xs">Status</th>
+          <th class="text-left p-4 font-head font-600 text-gray-500 text-xs">Date</th>
+          <th class="p-4"></th>
+        </tr>
+      </thead>
+      <tbody id="inv-tbody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ════════════════════════ SETTINGS ════════════════════════ -->
+<div id="sec-settings" class="section">
+  <div class="flex gap-2 mb-5" id="settings-tabs">
+    <button class="tab-btn active" onclick="switchSettingsTab('pricing',this)">Pricing</button>
+    <button class="tab-btn" onclick="switchSettingsTab('items',this)">Item Prices</button>
+    <button class="tab-btn" onclick="switchSettingsTab('surcharges',this)">Surcharges</button>
+    <button class="tab-btn" onclick="switchSettingsTab('fleet',this)">Trucks & Crew</button>
+    <button class="tab-btn" onclick="switchSettingsTab('company',this)">Company</button>
+  </div>
+  <div id="settings-content"></div>
+</div>
+
+</div><!-- /p-6 -->
+</main>
+
+<!-- Mobile bottom nav -->
+<div id="mobile-nav-bar" class="gap-1 justify-around">
+  <button class="flex flex-col items-center gap-0.5 text-xs text-gray-500 p-2" onclick="nav('dashboard')">
+    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>Home</button>
+  <button class="flex flex-col items-center gap-0.5 text-xs text-gray-500 p-2" onclick="nav('estimate-new')">
+    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>Estimate</button>
+  <button class="flex flex-col items-center gap-0.5 text-xs text-gray-500 p-2" onclick="nav('dispatch')">
+    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>Dispatch</button>
+  <button class="flex flex-col items-center gap-0.5 text-xs text-gray-500 p-2" onclick="nav('customers')">
+    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>Customers</button>
+</div>
+
+<!-- ════════════════ MODALS ════════════════ -->
+<div id="modal-overlay" class="modal-overlay hidden" onclick="if(event.target===this)closeModal()">
+  <div id="modal-box" class="modal"></div>
+</div>
+
+<script>
+// ─── State ────────────────────────────────────────────────────────────────────
+const S = {
+  currentSection: 'dashboard',
+  settings: {},
+  estStep: 1,
+  est: {
+    customer_id: null, customer_name: '', cphone: '', cemail: '', caddr: '',
+    load_pct: 0, load_label: '', items: [], access_modifier: 'standard', access_multiplier: 1.0,
+    dense_materials: [], hazmat_items: [], base_price: 0, items_price: 0, surcharges: 0,
+    estimated_dump_fee: 85, total: 0, notes: '', ai_analysis: '', photo_path: ''
+  },
+  estFilterStatus: 'all', estSearch: '',
+  invFilterStatus: 'all',
+  calWeekOffset: 0,
+  settingsTab: 'pricing',
+  jobs: [], estimates: [], customers: [], invoices: [],
+}
+
+// ─── API ──────────────────────────────────────────────────────────────────────
+const api = {
+  async get(url) { const r = await fetch(url); return r.json() },
+  async post(url, data) { const r = await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)}); return r.json() },
+  async put(url, data) { const r = await fetch(url,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)}); return r.json() },
+  async del(url) { const r = await fetch(url,{method:'DELETE'}); return r.json() }
+}
+
+// ─── Router ───────────────────────────────────────────────────────────────────
+const TITLES = {
+  dashboard:'Dashboard', 'estimate-new':'New Estimate', estimates:'Estimates',
+  dispatch:'Dispatch', schedule:'Schedule', customers:'Customers',
+  invoices:'Invoices', settings:'Settings'
+}
+function nav(section) {
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'))
+  document.querySelectorAll('.sidebar-link').forEach(l=>{
+    l.classList.toggle('active', l.dataset.section===section)
+  })
+  const el = document.getElementById('sec-'+section)
+  if (el) el.classList.add('active')
+  document.getElementById('top-title').textContent = TITLES[section] || section
+  S.currentSection = section
+
+  if (section==='dashboard') loadDashboard()
+  else if (section==='estimates') loadEstimates()
+  else if (section==='dispatch') loadDispatch()
+  else if (section==='schedule') loadSchedule()
+  else if (section==='customers') loadCustomers()
+  else if (section==='invoices') loadInvoices()
+  else if (section==='settings') loadSettings()
+  else if (section==='estimate-new') initEstimateWizard()
+}
+
+// ─── Helpers ─────────────────────────────────────────────────────────────────
+const fmt = n => '$' + Number(n||0).toFixed(2)
+const fmtDate = s => s ? new Date(s).toLocaleDateString('en-CA',{month:'short',day:'numeric'}) : '—'
+
+function statusBadge(s) {
+  const map = {
+    draft:'badge-gray', sent:'badge-blue', approved:'badge-green', declined:'badge-red',
+    converted:'badge-purple', pending:'badge-yellow', scheduled:'badge-blue',
+    en_route:'badge-purple', in_progress:'badge-blue', completed:'badge-green',
+    cancelled:'badge-red', unpaid:'badge-yellow', paid:'badge-green', refunded:'badge-gray'
+  }
+  return `<span class="badge ${map[s]||'badge-gray'}">${s}</span>`
+}
+
+function showModal(html, large=false) {
+  document.getElementById('modal-box').className = 'modal' + (large?' modal-lg':'')
+  document.getElementById('modal-box').innerHTML = html
+  document.getElementById('modal-overlay').classList.remove('hidden')
+}
+function closeModal() { document.getElementById('modal-overlay').classList.add('hidden') }
+
+function toast(msg, type='ok') {
+  const t = document.createElement('div')
+  t.className = `fixed bottom-20 left-1/2 -translate-x-1/2 z-[200] px-5 py-3 rounded-xl font-head font-600 text-sm shadow-xl ${type==='ok'?'bg-green text-ink':'bg-red-500 text-white'}`
+  t.textContent = msg
+  document.body.appendChild(t)
+  setTimeout(()=>t.remove(), 2800)
+}
+
+// ─── Dashboard ────────────────────────────────────────────────────────────────
+async function loadDashboard() {
+  const d = await api.get('/api/dashboard')
+  const stats = [
+    { label:"Today's Jobs", value: d.today_jobs, sub: `${fmt(d.today_revenue)} today`, icon:'📦' },
+    { label:"Week Revenue", value: fmt(d.week_revenue), sub:'last 7 days', icon:'💰' },
+    { label:"Month Revenue", value: fmt(d.month_revenue), sub:'this month', icon:'📈' },
+    { label:"Est. Profit", value: fmt(d.month_profit), sub:'revenue - costs', icon:'✅', highlight: d.month_profit > 0 },
+  ]
+  document.getElementById('dash-stats').innerHTML = stats.map(s=>`
+    <div class="card flex flex-col gap-1">
+      <div class="text-2xl">${s.icon}</div>
+      <div class="font-head font-800 text-2xl ${s.highlight===false?'text-red-500':'text-ink'}">${s.value}</div>
+      <div class="font-head font-600 text-sm text-gray-500">${s.label}</div>
+      <div class="text-xs text-gray-400">${s.sub}</div>
+    </div>
+  `).join('')
+
+  const upEl = document.getElementById('dash-upcoming')
+  if (!d.upcoming_jobs.length) { upEl.innerHTML='<p class="text-sm text-gray-400">No upcoming jobs</p>'; }
+  else upEl.innerHTML = d.upcoming_jobs.slice(0,5).map(j=>`
+    <div class="flex items-center justify-between py-2 border-b border-gray-50 last:border-0">
+      <div>
+        <p class="font-head font-600 text-sm">${j.customer_name||'Unknown'}</p>
+        <p class="text-xs text-gray-400">${j.scheduled_date} ${j.scheduled_time||''} · ${j.truck_name||'No truck'}</p>
+      </div>
+      <div class="flex items-center gap-2">${statusBadge(j.status)}<span class="text-sm font-head font-600">${fmt(j.revenue)}</span></div>
+    </div>
+  `).join('')
+
+  const recEl = document.getElementById('dash-recent')
+  if (!d.recent_jobs.length) { recEl.innerHTML='<p class="text-sm text-gray-400">No jobs yet</p>'; return }
+  recEl.innerHTML = d.recent_jobs.map(j=>`
+    <div class="flex items-center justify-between py-2 border-b border-gray-50 last:border-0 cursor-pointer hover:bg-gray-50 rounded px-1" onclick="openJobModal(${j.id})">
+      <div>
+        <p class="font-head font-600 text-sm">${j.customer_name||'Unknown'}</p>
+        <p class="text-xs text-gray-400">${fmtDate(j.created_at)} · ${j.truck_name||'—'}</p>
+      </div>
+      ${statusBadge(j.status)}
+    </div>
+  `).join('')
+}
+
+// ─── Estimate Wizard ──────────────────────────────────────────────────────────
+function initEstimateWizard() {
+  S.est = {
+    customer_id:null, customer_name:'', cphone:'', cemail:'', caddr:'',
+    load_pct:0, load_label:'', items:[], access_modifier:'standard', access_multiplier:1.0,
+    dense_materials:[], hazmat_items:[], base_price:0, items_price:0, surcharges:0,
+    estimated_dump_fee:85, total:0, notes:'', ai_analysis:'', photo_path:''
+  }
+  S.estStep = 1
+  document.querySelectorAll('.est-step').forEach((el,i)=>{
+    el.classList.toggle('hidden', i>0)
+  })
+  document.getElementById('e-cname').value=''
+  document.getElementById('e-cphone').value=''
+  document.getElementById('e-cemail').value=''
+  document.getElementById('e-caddr').value=''
+  document.getElementById('cust-search').value=''
+  document.getElementById('cust-results').classList.add('hidden')
+  document.getElementById('ai-result').classList.add('hidden')
+  document.getElementById('ai-loading').classList.add('hidden')
+  renderStepDots()
+  buildLoadButtons()
+  buildAccessButtons()
+  buildItemButtons()
+  buildDenseButtons()
+  buildHazmatButtons()
+  document.getElementById('e-dumpfee').value = S.settings.default_dump_fee || 85
+  S.est.estimated_dump_fee = S.settings.default_dump_fee || 85
+}
+
+function renderStepDots() {
+  const labels = ['Customer','Photo & AI','Items & Load','Review']
+  document.getElementById('est-steps').innerHTML = labels.map((l,i)=>{
+    const n = i+1
+    const cls = n < S.estStep ? 'done' : n === S.estStep ? 'active' : 'todo'
+    return `<div class="flex items-center gap-2">
+      <div class="step-dot ${cls}">${n < S.estStep ? '✓' : n}</div>
+      <span class="text-sm font-head font-600 ${cls==='active'?'text-ink':'text-gray-400'}">${l}</span>
+      ${i<3?'<svg class="w-4 h-4 text-gray-200 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>':''}
+    </div>`
+  }).join('')
+}
+
+function estNext(step) {
+  if (step === 2) {
+    const name = document.getElementById('e-cname').value.trim()
+    if (!name && !S.est.customer_name) { toast('Enter customer name','err'); return }
+    if (!S.est.customer_id) {
+      S.est.customer_name = name || S.est.customer_name
+      S.est.cphone = document.getElementById('e-cphone').value
+      S.est.cemail = document.getElementById('e-cemail').value
+      S.est.caddr = document.getElementById('e-caddr').value
+    }
+  }
+  if (step === 4) {
+    recalc()
+    renderPriceBreakdown()
+    renderProfitBreakdown()
+  }
+  S.estStep = step
+  document.querySelectorAll('.est-step').forEach((el,i)=>{
+    el.classList.toggle('hidden', i+1 !== step)
+  })
+  renderStepDots()
+}
+
+function buildLoadButtons() {
+  const rates = S.settings.load_rates || {eighth:150,quarter:250,half:400,three_quarter:525,full:700}
+  const loads = [
+    {key:'eighth',label:'1/8 Load',pct:12.5},
+    {key:'quarter',label:'1/4 Load',pct:25},
+    {key:'half',label:'1/2 Load',pct:50},
+    {key:'three_quarter',label:'3/4 Load',pct:75},
+    {key:'full',label:'Full Load',pct:100},
+  ]
+  document.getElementById('load-btns').innerHTML = loads.map(l=>`
+    <button onclick="selectLoad('${l.key}','${l.label}',${l.pct},${rates[l.key]||0})"
+      id="load-btn-${l.key}"
+      class="border-2 rounded-xl p-3 text-center transition-all hover:border-green-DEFAULT cursor-pointer ${S.est.load_label===l.label?'border-green-DEFAULT bg-green-DEFAULT/10':'border-gray-200'}">
+      <div class="font-head font-700 text-sm">${l.label}</div>
+      <div class="text-green-dark font-head font-800 text-base mt-1">${fmt(rates[l.key]||0)}</div>
+    </button>
+  `).join('')
+}
+
+function selectLoad(key, label, pct, price) {
+  S.est.load_pct = pct; S.est.load_label = label; S.est.base_price = price
+  document.querySelectorAll('[id^="load-btn-"]').forEach(b=>{
+    const active = b.id === 'load-btn-'+key
+    b.className = `border-2 rounded-xl p-3 text-center transition-all hover:border-green-DEFAULT cursor-pointer ${active?'border-green-DEFAULT bg-green-DEFAULT/10':'border-gray-200'}`
+  })
+  document.getElementById('load-fill-bar').style.width = pct+'%'
+  recalc()
+}
+
+function buildAccessButtons() {
+  const mods = S.settings.access_modifiers || {standard:1.0,stairs:1.20,long_carry:1.15,elevator:1.10}
+  const labels = {standard:'Standard',stairs:'Has Stairs (+20%)',long_carry:'Long Carry (+15%)',elevator:'Elevator (+10%)'}
+  document.getElementById('access-btns').innerHTML = Object.entries(mods).map(([k,v])=>`
+    <button onclick="selectAccess('${k}',${v})" id="acc-btn-${k}"
+      class="border-2 rounded-xl p-3 text-center transition-all cursor-pointer text-sm font-head font-600 ${S.est.access_modifier===k?'border-green-DEFAULT bg-green-DEFAULT/10':'border-gray-200'} hover:border-green-DEFAULT">
+      ${labels[k]||k}
+    </button>
+  `).join('')
+}
+
+function selectAccess(key, val) {
+  S.est.access_modifier = key; S.est.access_multiplier = val
+  document.querySelectorAll('[id^="acc-btn-"]').forEach(b=>{
+    b.className = `border-2 rounded-xl p-3 text-center transition-all cursor-pointer text-sm font-head font-600 ${b.id==='acc-btn-'+key?'border-green-DEFAULT bg-green-DEFAULT/10':'border-gray-200'} hover:border-green-DEFAULT`
+  })
+  recalc()
+}
+
+function buildItemButtons() {
+  const items = S.settings.item_prices || {}
+  document.getElementById('item-btns').innerHTML = Object.entries(items).map(([name,price])=>{
+    const qty = S.est.items.find(i=>i.name===name)?.qty || 0
+    return `
+    <div class="border rounded-xl p-2 text-xs flex items-center justify-between gap-1 ${qty>0?'border-green-DEFAULT bg-green-DEFAULT/10':'border-gray-200'}">
+      <div>
+        <div class="font-head font-600 text-ink">${name}</div>
+        <div class="text-green-dark">${fmt(price)}</div>
+      </div>
+      <div class="flex items-center gap-1">
+        <button onclick="adjustItem('${name.replace(/'/g,"\\'")}',${price},-1)" class="w-6 h-6 rounded-full bg-gray-100 hover:bg-gray-200 font-head font-700 text-sm flex items-center justify-center">−</button>
+        <span class="font-head font-700 text-sm w-5 text-center" id="item-qty-${name.replace(/[^a-z0-9]/gi,'_')}">${qty}</span>
+        <button onclick="adjustItem('${name.replace(/'/g,"\\'")}',${price},1)" class="w-6 h-6 rounded-full bg-green-DEFAULT hover:bg-green-dark text-ink font-head font-700 text-sm flex items-center justify-center">+</button>
+      </div>
+    </div>`
+  }).join('')
+}
+
+function adjustItem(name, price, delta) {
+  const idx = S.est.items.findIndex(i=>i.name===name)
+  if (idx>=0) {
+    S.est.items[idx].qty = Math.max(0, S.est.items[idx].qty + delta)
+    if (S.est.items[idx].qty===0) S.est.items.splice(idx,1)
+  } else if (delta>0) {
+    S.est.items.push({name, price, qty:1})
+  }
+  buildItemButtons(); recalc()
+}
+
+function buildDenseButtons() {
+  const d = S.settings.dense_surcharges || {}
+  document.getElementById('dense-btns').innerHTML = Object.entries(d).map(([name,price])=>{
+    const active = S.est.dense_materials.includes(name)
+    return `<button onclick="toggleDense('${name}',${price})" id="dense-${name.replace(/[^a-z]/gi,'_')}"
+      class="border-2 rounded-xl p-2 text-xs font-head font-600 cursor-pointer transition-all ${active?'border-red-400 bg-red-50 text-red-600':'border-gray-200 hover:border-red-300'}">
+      ⚠ ${name}<br/><span class="font-normal text-green-dark">+${fmt(price)}</span>
+    </button>`
+  }).join('')
+}
+function toggleDense(name, price) {
+  const i = S.est.dense_materials.indexOf(name)
+  if (i>=0) S.est.dense_materials.splice(i,1); else S.est.dense_materials.push(name)
+  buildDenseButtons(); recalc()
+}
+
+function buildHazmatButtons() {
+  const h = S.settings.hazmat_surcharges || {}
+  document.getElementById('hazmat-btns').innerHTML = Object.entries(h).map(([name,price])=>{
+    const active = S.est.hazmat_items.includes(name)
+    return `<button onclick="toggleHazmat('${name}',${price})" id="haz-${name.replace(/[^a-z]/gi,'_')}"
+      class="border-2 rounded-xl p-2 text-xs font-head font-600 cursor-pointer transition-all ${active?'border-yellow-400 bg-yellow-50 text-yellow-700':'border-gray-200 hover:border-yellow-300'}">
+      ☢ ${name}<br/><span class="font-normal text-green-dark">+${fmt(price)}</span>
+    </button>`
+  }).join('')
+}
+function toggleHazmat(name, price) {
+  const i = S.est.hazmat_items.indexOf(name)
+  if (i>=0) S.est.hazmat_items.splice(i,1); else S.est.hazmat_items.push(name)
+  buildHazmatButtons(); recalc()
+}
+
+function recalc() {
+  const rates = S.settings.load_rates || {}
+  S.est.estimated_dump_fee = parseFloat(document.getElementById('e-dumpfee')?.value || 85)
+
+  // Items subtotal
+  S.est.items_price = S.est.items.reduce((s,i)=>s+i.price*i.qty, 0)
+
+  // Dense surcharges
+  const denseRates = S.settings.dense_surcharges || {}
+  const denseSurcharge = S.est.dense_materials.reduce((s,m)=>s+(denseRates[m]||0), 0)
+
+  // Hazmat surcharges
+  const hazRates = S.settings.hazmat_surcharges || {}
+  const hazSurcharge = S.est.hazmat_items.reduce((s,m)=>s+(hazRates[m]||0), 0)
+
+  S.est.surcharges = denseSurcharge + hazSurcharge
+
+  // Total = (base + items) * access modifier + surcharges
+  const baseAndItems = (S.est.base_price + S.est.items_price) * S.est.access_multiplier
+  S.est.total = baseAndItems + S.est.surcharges
+}
+
+function renderPriceBreakdown() {
+  recalc()
+  const rows = []
+  if (S.est.base_price) rows.push([S.est.load_label || 'Load price', fmt(S.est.base_price)])
+  if (S.est.items_price) rows.push(['Individual items', fmt(S.est.items_price)])
+  if (S.est.access_multiplier > 1) rows.push([`Access modifier (×${S.est.access_multiplier})`, '+' + fmt((S.est.base_price + S.est.items_price) * (S.est.access_multiplier - 1))])
+  if (S.est.surcharges) rows.push(['Surcharges', fmt(S.est.surcharges)])
+  rows.push(['Est. Dump Fee', fmt(S.est.estimated_dump_fee)])
+  rows.push(['TOTAL', fmt(S.est.total)])
+
+  document.getElementById('price-breakdown').innerHTML = rows.map((r,i)=>`
+    <div class="price-row ${i===rows.length-1?'pt-3 mt-1 border-t-2 border-gray-200':''}">
+      <span class="text-gray-500">${r[0]}</span>
+      <span class="${i===rows.length-1?'text-lg':''}">${r[1]}</span>
+    </div>
+  `).join('')
+}
+
+function renderProfitBreakdown() {
+  const laborRate = (S.settings.labor_rate_per_crew||35)
+  const crew = (S.settings.avg_crew_per_job||2)
+  const hrs = (S.settings.avg_job_hours||2)
+  const labor = laborRate * crew * hrs
+  const fuel = S.settings.fuel_per_job || 25
+  const dump = S.est.estimated_dump_fee || 85
+  const totalCosts = labor + fuel + dump
+  const margin = S.est.total - totalCosts
+  const pct = S.est.total > 0 ? Math.round((margin/S.est.total)*100) : 0
+  const good = margin >= 0
+
+  document.getElementById('profit-breakdown').innerHTML = `
+    <div class="price-row"><span class="text-gray-500">Revenue</span><span>${fmt(S.est.total)}</span></div>
+    <div class="price-row"><span class="text-gray-500">Est. Labor (${crew} crew × ${hrs}h)</span><span class="text-red-400">− ${fmt(labor)}</span></div>
+    <div class="price-row"><span class="text-gray-500">Est. Fuel</span><span class="text-red-400">− ${fmt(fuel)}</span></div>
+    <div class="price-row"><span class="text-gray-500">Est. Dump Fee</span><span class="text-red-400">− ${fmt(dump)}</span></div>
+    <div class="price-row">
+      <span class="font-head font-700">Est. Margin</span>
+      <span class="font-head font-800 text-lg ${good?'profit-positive':'profit-negative'}">${fmt(margin)} (${pct}%)</span>
+    </div>
+    <div class="margin-bar mt-3">
+      <div class="${good?'margin-fill-good':'margin-fill-bad'}" style="width:${Math.min(100,Math.abs(pct))}%;height:100%;border-radius:99px;"></div>
+    </div>
+    <p class="text-xs text-gray-400 mt-2">${good?'✅ Profitable job':'⚠️ Below break-even — consider adjusting price'}</p>
+  `
+}
+
+async function saveEstimate(status) {
+  S.est.notes = document.getElementById('e-notes')?.value || ''
+  recalc()
+
+  let customer_id = S.est.customer_id
+  if (!customer_id && S.est.customer_name) {
+    const c = await api.post('/api/customers', {
+      name: S.est.customer_name, phone: S.est.cphone,
+      email: S.est.cemail, address: S.est.caddr
+    })
+    customer_id = c.id
+  }
+
+  const payload = { ...S.est, customer_id, status }
+  const saved = await api.post('/api/estimates', payload)
+
+  if (status === 'approved') {
+    await api.post('/api/jobs', {
+      estimate_id: saved.id, customer_id, customer_name: S.est.customer_name,
+      revenue: S.est.total, address: S.est.caddr, status: 'pending'
+    })
+    toast('Estimate approved & job created!')
+  } else {
+    toast('Estimate saved as draft')
+  }
+  nav('estimates')
+}
+
+// ─── Photo handling ────────────────────────────────────────────────────────────
+function photoDragOver(e) { e.preventDefault(); document.getElementById('photo-drop').classList.add('dragover') }
+function photoDrop(e) {
+  e.preventDefault()
+  document.getElementById('photo-drop').classList.remove('dragover')
+  if (e.dataTransfer.files[0]) handlePhoto(e.dataTransfer.files[0])
+}
+
+async function handlePhoto(file) {
+  if (!file) return
+  const drop = document.getElementById('photo-drop')
+  drop.innerHTML = `<img src="${URL.createObjectURL(file)}" class="max-h-48 rounded-xl mx-auto object-contain"/>`
+  document.getElementById('ai-loading').classList.remove('hidden')
+  document.getElementById('ai-result').classList.add('hidden')
+
+  const fd = new FormData()
+  fd.append('photo', file)
+  try {
+    const r = await fetch('/api/analyze-photo', { method:'POST', body:fd })
+    const analysis = await r.json()
+    if (analysis.error) { toast('AI error: '+analysis.error,'err'); return }
+    document.getElementById('ai-loading').classList.add('hidden')
+    document.getElementById('ai-result').classList.remove('hidden')
+
+    S.est.ai_analysis = JSON.stringify(analysis)
+    S.est.photo_path = analysis.photo_path || ''
+
+    // Auto-apply suggestion
+    if (analysis.load_pct) {
+      const loadMap = [{key:'eighth',pct:12.5,label:'1/8 Load'},{key:'quarter',pct:25,label:'1/4 Load'},{key:'half',pct:50,label:'1/2 Load'},{key:'three_quarter',pct:75,label:'3/4 Load'},{key:'full',pct:100,label:'Full Load'}]
+      const rates = S.settings.load_rates || {eighth:150,quarter:250,half:400,three_quarter:525,full:700}
+      const best = loadMap.reduce((prev,cur)=>Math.abs(cur.pct-analysis.load_pct)<Math.abs(prev.pct-analysis.load_pct)?cur:prev)
+      S.est.load_pct = best.pct; S.est.load_label = best.label; S.est.base_price = rates[best.key]||0
+    }
+
+    // Auto-apply detected items
+    if (analysis.detected_items?.length) {
+      const itemPrices = S.settings.item_prices || {}
+      analysis.detected_items.forEach(d=>{
+        const price = itemPrices[d.name]
+        if (price && d.qty > 0) {
+          const idx = S.est.items.findIndex(i=>i.name===d.name)
+          if (idx>=0) S.est.items[idx].qty += d.qty
+          else S.est.items.push({name:d.name,price,qty:d.qty})
+        }
+      })
+    }
+
+    document.getElementById('ai-result').innerHTML = `
+      <div class="border border-green-DEFAULT/30 bg-green-DEFAULT/5 rounded-xl p-4">
+        <div class="flex items-center gap-2 mb-3">
+          <span class="text-green-dark text-lg">🤖</span>
+          <p class="font-head font-700 text-sm">AI Analysis — <span class="text-gray-400 font-normal">${analysis.confidence} confidence</span></p>
+        </div>
+        <div class="grid grid-cols-2 gap-3 text-sm">
+          <div><p class="label mb-1">Load Estimate</p><p class="font-head font-700">${analysis.load_label} (${analysis.load_pct}%)</p></div>
+          <div><p class="label mb-1">Items Detected</p><p class="font-head font-700">${analysis.detected_items?.length||0} item types</p></div>
+          ${analysis.density_warning?`<div class="col-span-2"><p class="badge badge-red">⚠ Dense materials detected: ${analysis.dense_materials?.join(', ')}</p></div>`:''}
+          ${analysis.hazmat_items?.length?`<div class="col-span-2"><p class="badge badge-yellow">☢ Hazmat: ${analysis.hazmat_items.join(', ')}</p></div>`:''}
+        </div>
+        ${analysis.notes?`<p class="text-xs text-gray-400 mt-2 italic">${analysis.notes}</p>`:''}
+        <p class="text-xs text-green-dark mt-2 font-head font-600">✅ Selections auto-applied below — review on next step</p>
+      </div>`
+  } catch(e) {
+    document.getElementById('ai-loading').classList.add('hidden')
+    toast('Failed to analyze photo','err')
+  }
+}
+
+// ─── Customer search ──────────────────────────────────────────────────────────
+async function searchCustomers(q) {
+  const res = document.getElementById('cust-results')
+  if (!q) { res.classList.add('hidden'); return }
+  const customers = await api.get('/api/customers?q='+encodeURIComponent(q))
+  if (!customers.length) { res.classList.add('hidden'); return }
+  res.classList.remove('hidden')
+  res.innerHTML = customers.slice(0,5).map(c=>`
+    <div class="px-4 py-3 hover:bg-gray-50 cursor-pointer border-b border-gray-50 last:border-0" onclick="selectCustomer(${c.id},'${c.name.replace(/'/g,"\\'")}','${(c.phone||'').replace(/'/g,"\\'")}','${(c.email||'').replace(/'/g,"\\'")}','${(c.address||'').replace(/'/g,"\\'")}')">
+      <p class="font-head font-600 text-sm">${c.name}</p>
+      <p class="text-xs text-gray-400">${c.phone||''} ${c.email||''}</p>
+    </div>
+  `).join('')
+}
+
+function selectCustomer(id, name, phone, email, address) {
+  S.est.customer_id = id; S.est.customer_name = name
+  document.getElementById('e-cname').value = name
+  document.getElementById('e-cphone').value = phone
+  document.getElementById('e-cemail').value = email
+  document.getElementById('e-caddr').value = address
+  document.getElementById('cust-results').classList.add('hidden')
+  document.getElementById('cust-search').value = name
+}
+
+// ─── Estimates List ───────────────────────────────────────────────────────────
+let _allEstimates = []
+async function loadEstimates() {
+  _allEstimates = await api.get('/api/estimates')
+  renderEstimatesTable()
+}
+function filterEstimates(status, btn) {
+  S.estFilterStatus = status
+  document.querySelectorAll('#est-filter-tabs .tab-btn').forEach(b=>b.classList.remove('active'))
+  btn.classList.add('active')
+  renderEstimatesTable()
+}
+function estSearch(q) { S.estSearch = q; renderEstimatesTable() }
+function renderEstimatesTable() {
+  let rows = _allEstimates
+  if (S.estFilterStatus !== 'all') rows = rows.filter(e=>e.status===S.estFilterStatus)
+  if (S.estSearch) rows = rows.filter(e=>(e.customer_name||e.cname||'').toLowerCase().includes(S.estSearch.toLowerCase()))
+  document.getElementById('est-tbody').innerHTML = rows.length ? rows.map(e=>`
+    <tr class="border-b border-gray-50 hover:bg-gray-50">
+      <td class="p-4 font-head font-600 text-sm">${e.customer_name||e.cname||'—'}</td>
+      <td class="p-4 text-sm">${e.load_label||'—'}</td>
+      <td class="p-4 font-head font-700">${fmt(e.total)}</td>
+      <td class="p-4"><span class="${e.estimated_margin>=0?'profit-positive':'profit-negative'} font-head font-600 text-sm">${fmt(e.estimated_margin)}</span></td>
+      <td class="p-4">${statusBadge(e.status)}</td>
+      <td class="p-4 text-xs text-gray-400">${fmtDate(e.created_at)}</td>
+      <td class="p-4">
+        <div class="flex gap-1">
+          ${e.status!=='converted'?`<button class="btn btn-ghost text-xs py-1 px-2" onclick="convertToJob(${e.id})">→ Job</button>`:''}
+          <button class="btn btn-red text-xs py-1 px-2" onclick="deleteEstimate(${e.id})">✕</button>
+        </div>
+      </td>
+    </tr>
+  `).join('') : '<tr><td colspan="7" class="p-8 text-center text-gray-400 text-sm">No estimates yet</td></tr>'
+}
+
+async function convertToJob(estId) {
+  const e = await api.get('/api/estimates/'+estId)
+  const items = JSON.parse(e.items||'[]')
+  const job = await api.post('/api/jobs', {
+    estimate_id: estId, customer_id: e.customer_id, customer_name: e.customer_name,
+    revenue: e.total, status: 'pending'
+  })
+  await api.put('/api/estimates/'+estId, {...e, items, status:'converted'})
+  toast('Job created from estimate!')
+  loadEstimates()
+}
+
+async function deleteEstimate(id) {
+  if (!confirm('Delete this estimate?')) return
+  await api.del('/api/estimates/'+id)
+  loadEstimates()
+}
+
+// ─── Dispatch ─────────────────────────────────────────────────────────────────
+const COLS = [
+  {key:'pending',label:'Pending',color:'#FEF9C3'},
+  {key:'scheduled',label:'Scheduled',color:'#DBEAFE'},
+  {key:'en_route',label:'En Route',color:'#EDE9FE'},
+  {key:'completed',label:'Completed',color:'#DCFCE7'},
+]
+let _allJobs = [], _trucks = [], _crew = []
+async function loadDispatch() {
+  [_allJobs, _trucks, _crew] = await Promise.all([
+    api.get('/api/jobs'), api.get('/api/trucks'), api.get('/api/crew')
+  ])
+  renderKanban()
+}
+function renderKanban() {
+  const board = document.getElementById('kanban-board')
+  board.innerHTML = COLS.map(col=>`
+    <div class="kanban-col" data-col="${col.key}" ondragover="dragOver(event,this)" ondrop="dropJob(event,'${col.key}')">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="font-head font-700 text-sm" style="color:#333">${col.label}</h3>
+        <span class="badge badge-gray">${_allJobs.filter(j=>j.status===col.key).length}</span>
+      </div>
+      <div id="col-${col.key}">
+        ${_allJobs.filter(j=>j.status===col.key).map(j=>jobCard(j)).join('')}
+      </div>
+    </div>
+  `).join('')
+}
+function jobCard(j) {
+  const truck = _trucks.find(t=>t.id===j.truck_id)
+  return `<div class="kanban-card" draggable="true" data-id="${j.id}"
+    ondragstart="dragStart(event,${j.id})"
+    onclick="openJobModal(${j.id})">
+    <p class="font-head font-700 text-sm mb-1">${j.customer_name||'Unknown'}</p>
+    <p class="text-xs text-gray-400 mb-2">${j.scheduled_date||'Not scheduled'} ${j.scheduled_time||''}</p>
+    <div class="flex items-center justify-between">
+      <span class="text-xs font-head font-600 text-green-dark">${fmt(j.revenue)}</span>
+      ${truck?`<span class="badge badge-gray text-xs">${truck.name}</span>`:'<span class="badge badge-gray text-xs">No truck</span>'}
+    </div>
+    ${j.address?`<p class="text-xs text-gray-400 mt-1 truncate">📍 ${j.address}</p>`:''}
+  </div>`
+}
+let _dragId = null
+function dragStart(e, id) { _dragId = id; e.currentTarget.classList.add('dragging') }
+function dragOver(e, el) { e.preventDefault(); el.classList.add('drag-over') }
+async function dropJob(e, status) {
+  e.preventDefault()
+  document.querySelectorAll('.kanban-col').forEach(c=>c.classList.remove('drag-over'))
+  if (!_dragId) return
+  const job = _allJobs.find(j=>j.id===_dragId)
+  if (!job) return
+  const crew = JSON.parse(job.crew||'[]')
+  await api.put('/api/jobs/'+_dragId, {...job, crew, status})
+  loadDispatch()
+}
+
+function openJobModal(id) {
+  const job = id ? _allJobs.find(j=>j.id===id) : null
+  const crew = job ? JSON.parse(job.crew||'[]') : []
+  showModal(`
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="font-head font-700">${job?'Edit Job':'New Job'}</h2>
+      <button onclick="closeModal()" class="text-gray-400 hover:text-gray-700 text-xl">✕</button>
+    </div>
+    <div class="grid grid-cols-2 gap-3">
+      <div class="col-span-2"><label class="label">Customer Name</label>
+        <input class="input" id="jm-cname" value="${job?.customer_name||''}"/></div>
+      <div class="col-span-2"><label class="label">Address</label>
+        <input class="input" id="jm-addr" value="${job?.address||''}"/></div>
+      <div><label class="label">Date</label>
+        <input class="input" type="date" id="jm-date" value="${job?.scheduled_date||''}"/></div>
+      <div><label class="label">Time</label>
+        <input class="input" type="time" id="jm-time" value="${job?.scheduled_time||''}"/></div>
+      <div><label class="label">Truck</label>
+        <select class="input" id="jm-truck">
+          <option value="">— No truck —</option>
+          ${_trucks.map(t=>`<option value="${t.id}" ${job?.truck_id===t.id?'selected':''}>${t.name}</option>`).join('')}
+        </select>
+      </div>
+      <div><label class="label">Revenue ($)</label>
+        <input class="input" type="number" id="jm-rev" value="${job?.revenue||0}"/></div>
+      <div class="col-span-2"><label class="label">Crew Members</label>
+        <div class="flex flex-wrap gap-2 mt-1">
+          ${_crew.map(c=>`<label class="flex items-center gap-1 text-sm cursor-pointer"><input type="checkbox" ${crew.includes(c.id)?'checked':''} value="${c.id}" class="crew-check rounded"/> ${c.name}</label>`).join('')}
+        </div>
+      </div>
+      <div><label class="label">Status</label>
+        <select class="input" id="jm-status">
+          ${['pending','scheduled','en_route','in_progress','completed','cancelled'].map(s=>`<option value="${s}" ${job?.status===s?'selected':''}>${s}</option>`).join('')}
+        </select>
+      </div>
+      <div><label class="label">Actual Dump Fee ($)</label>
+        <input class="input" type="number" id="jm-dump" value="${job?.actual_dump_fee||''}"/></div>
+      <div class="col-span-2"><label class="label">Notes</label>
+        <textarea class="input" id="jm-notes">${job?.notes||''}</textarea></div>
+    </div>
+    <div class="flex justify-between mt-5">
+      ${job?`<button class="btn btn-red" onclick="deleteJob(${job.id})">Delete Job</button>`:'<div/>'}
+      <div class="flex gap-2">
+        <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+        <button class="btn btn-green" onclick="saveJob(${id||'null'})">Save Job</button>
+      </div>
+    </div>
+  `, true)
+}
+
+async function saveJob(id) {
+  const crew = Array.from(document.querySelectorAll('.crew-check:checked')).map(c=>parseInt(c.value))
+  const data = {
+    customer_name: document.getElementById('jm-cname').value,
+    address: document.getElementById('jm-addr').value,
+    scheduled_date: document.getElementById('jm-date').value,
+    scheduled_time: document.getElementById('jm-time').value,
+    truck_id: parseInt(document.getElementById('jm-truck').value)||null,
+    revenue: parseFloat(document.getElementById('jm-rev').value)||0,
+    status: document.getElementById('jm-status').value,
+    actual_dump_fee: parseFloat(document.getElementById('jm-dump').value)||null,
+    notes: document.getElementById('jm-notes').value,
+    crew
+  }
+  if (id) { await api.put('/api/jobs/'+id, data) }
+  else { await api.post('/api/jobs', data) }
+  closeModal(); toast('Job saved'); loadDispatch()
+}
+
+async function deleteJob(id) {
+  if (!confirm('Delete job?')) return
+  await api.del('/api/jobs/'+id)
+  closeModal(); loadDispatch()
+}
+
+// ─── Schedule ─────────────────────────────────────────────────────────────────
+async function loadSchedule() {
+  if (!_allJobs.length) _allJobs = await api.get('/api/jobs')
+  renderCalendar()
+}
+function shiftWeek(delta) {
+  if (delta===0) S.calWeekOffset=0; else S.calWeekOffset+=delta
+  renderCalendar()
+}
+function renderCalendar() {
+  const today = new Date()
+  today.setDate(today.getDate() + S.calWeekOffset*7)
+  const monday = new Date(today)
+  monday.setDate(today.getDate() - ((today.getDay()+6)%7))
+  const days = Array.from({length:7},(_,i)=>{ const d=new Date(monday); d.setDate(monday.getDate()+i); return d })
+
+  const title = `${days[0].toLocaleDateString('en-CA',{month:'short',day:'numeric'})} – ${days[6].toLocaleDateString('en-CA',{month:'short',day:'numeric',year:'numeric'})}`
+  document.getElementById('cal-title').textContent = title
+
+  const DAY_NAMES = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun']
+  const grid = document.getElementById('cal-grid')
+  grid.innerHTML = days.map((d,i)=>{
+    const ds = d.toISOString().split('T')[0]
+    const dayJobs = _allJobs.filter(j=>j.scheduled_date===ds)
+    const isToday = ds === new Date().toISOString().split('T')[0]
+    return `
+      <div class="cal-cell ${isToday?'bg-green-DEFAULT/5 border-green-DEFAULT':''} p-2">
+        <div class="text-xs font-head font-700 mb-2 ${isToday?'text-green-dark':'text-gray-500'}">${DAY_NAMES[i]} ${d.getDate()}</div>
+        ${dayJobs.map(j=>`<div class="cal-job" onclick="openJobModal(${j.id})">
+          ${j.scheduled_time||''} ${j.customer_name||'Job'}
+        </div>`).join('')}
+      </div>`
+  }).join('')
+}
+
+// ─── Customers ────────────────────────────────────────────────────────────────
+async function loadCustomers(q='') {
+  const url = q ? '/api/customers?q='+encodeURIComponent(q) : '/api/customers'
+  const rows = await api.get(url)
+  document.getElementById('cust-tbody').innerHTML = rows.length ? rows.map(c=>`
+    <tr class="border-b border-gray-50 hover:bg-gray-50">
+      <td class="p-4 font-head font-600 text-sm cursor-pointer" onclick="openCustomerModal(${c.id})">${c.name}</td>
+      <td class="p-4 text-sm">${c.phone||'—'}</td>
+      <td class="p-4 text-sm">${c.email||'—'}</td>
+      <td class="p-4 text-sm text-gray-400">${c.address||'—'}</td>
+      <td class="p-4">
+        <div class="flex gap-1">
+          <button class="btn btn-ghost text-xs py-1 px-2" onclick="openCustomerModal(${c.id})">Edit</button>
+          <button class="btn btn-red text-xs py-1 px-2" onclick="deleteCustomer(${c.id})">✕</button>
+        </div>
+      </td>
+    </tr>
+  `).join('') : '<tr><td colspan="5" class="p-8 text-center text-gray-400 text-sm">No customers yet</td></tr>'
+}
+
+function openCustomerModal(id) {
+  const isNew = !id
+  if (isNew) {
+    showModal(`
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="font-head font-700">New Customer</h2>
+        <button onclick="closeModal()" class="text-gray-400 text-xl">✕</button>
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <div class="col-span-2"><label class="label">Full Name *</label><input class="input" id="cm-name"/></div>
+        <div><label class="label">Phone</label><input class="input" id="cm-phone"/></div>
+        <div><label class="label">Email</label><input class="input" id="cm-email"/></div>
+        <div class="col-span-2"><label class="label">Address</label><input class="input" id="cm-addr"/></div>
+        <div class="col-span-2"><label class="label">Notes</label><textarea class="input" id="cm-notes"></textarea></div>
+      </div>
+      <div class="flex justify-end gap-2 mt-4">
+        <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+        <button class="btn btn-green" onclick="saveCustomer(null)">Save Customer</button>
+      </div>
+    `)
+  } else {
+    api.get('/api/customers/'+id).then(c=>{
+      showModal(`
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="font-head font-700">${c.name}</h2>
+          <button onclick="closeModal()" class="text-gray-400 text-xl">✕</button>
+        </div>
+        <div class="grid grid-cols-2 gap-3 mb-4">
+          <div class="col-span-2"><label class="label">Full Name</label><input class="input" id="cm-name" value="${c.name||''}"/></div>
+          <div><label class="label">Phone</label><input class="input" id="cm-phone" value="${c.phone||''}"/></div>
+          <div><label class="label">Email</label><input class="input" id="cm-email" value="${c.email||''}"/></div>
+          <div class="col-span-2"><label class="label">Address</label><input class="input" id="cm-addr" value="${c.address||''}"/></div>
+          <div class="col-span-2"><label class="label">Notes</label><textarea class="input" id="cm-notes">${c.notes||''}</textarea></div>
+        </div>
+        ${c.jobs?.length?`<div class="mb-3"><p class="label mb-2">Recent Jobs</p>${c.jobs.map(j=>`<div class="text-sm flex justify-between py-1 border-b border-gray-50"><span>${j.scheduled_date||fmtDate(j.created_at)}</span><span>${statusBadge(j.status)}</span><span>${fmt(j.revenue)}</span></div>`).join('')}</div>`:''}
+        <div class="flex justify-between mt-4">
+          <button class="btn btn-red" onclick="deleteCustomer(${id})">Delete</button>
+          <div class="flex gap-2">
+            <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+            <button class="btn btn-green" onclick="saveCustomer(${id})">Save</button>
+          </div>
+        </div>
+      `, true)
+    })
+  }
+}
+
+async function saveCustomer(id) {
+  const data = {
+    name: document.getElementById('cm-name').value,
+    phone: document.getElementById('cm-phone').value,
+    email: document.getElementById('cm-email').value,
+    address: document.getElementById('cm-addr').value,
+    notes: document.getElementById('cm-notes').value
+  }
+  if (!data.name) { toast('Name required','err'); return }
+  if (id) await api.put('/api/customers/'+id, data)
+  else await api.post('/api/customers', data)
+  closeModal(); toast('Customer saved'); loadCustomers()
+}
+
+async function deleteCustomer(id) {
+  if (!confirm('Delete customer?')) return
+  await api.del('/api/customers/'+id)
+  closeModal(); loadCustomers()
+}
+
+// ─── Invoices ─────────────────────────────────────────────────────────────────
+let _allInvoices = []
+async function loadInvoices() {
+  _allInvoices = await api.get('/api/invoices')
+  renderInvoicesTable()
+}
+function filterInvoices(status, btn) {
+  S.invFilterStatus = status
+  document.querySelectorAll('#sec-invoices .tab-btn').forEach(b=>b.classList.remove('active'))
+  btn.classList.add('active')
+  renderInvoicesTable()
+}
+function renderInvoicesTable() {
+  let rows = _allInvoices
+  if (S.invFilterStatus!=='all') rows = rows.filter(i=>i.status===S.invFilterStatus)
+  document.getElementById('inv-tbody').innerHTML = rows.length ? rows.map(i=>`
+    <tr class="border-b border-gray-50 hover:bg-gray-50">
+      <td class="p-4 font-head font-600 text-sm">#${i.id}</td>
+      <td class="p-4 text-sm">${i.customer_name||'—'}</td>
+      <td class="p-4 font-head font-700">${fmt(i.amount)}</td>
+      <td class="p-4">${statusBadge(i.status)}</td>
+      <td class="p-4 text-xs text-gray-400">${fmtDate(i.created_at)}</td>
+      <td class="p-4">
+        <div class="flex gap-1">
+          ${i.status==='unpaid'?`<button class="btn btn-green text-xs py-1 px-2" onclick="markPaid(${i.id})">Mark Paid</button>`:''}
+          <button class="btn btn-ghost text-xs py-1 px-2" onclick="openInvoiceModal(${i.id})">Edit</button>
+        </div>
+      </td>
+    </tr>
+  `).join('') : '<tr><td colspan="6" class="p-8 text-center text-gray-400 text-sm">No invoices</td></tr>'
+}
+
+async function markPaid(id) {
+  const inv = _allInvoices.find(i=>i.id===id)
+  await api.put('/api/invoices/'+id, {...inv, status:'paid', payment_method:'cash'})
+  toast('Invoice marked as paid'); loadInvoices()
+}
+
+function openInvoiceModal(id) {
+  const inv = id ? _allInvoices.find(i=>i.id===id) : null
+  showModal(`
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="font-head font-700">${inv?'Invoice #'+inv.id:'New Invoice'}</h2>
+      <button onclick="closeModal()" class="text-gray-400 text-xl">✕</button>
+    </div>
+    <div class="grid grid-cols-2 gap-3">
+      <div class="col-span-2"><label class="label">Customer Name</label><input class="input" id="inv-cname" value="${inv?.customer_name||''}"/></div>
+      <div><label class="label">Amount ($)</label><input class="input" type="number" id="inv-amt" value="${inv?.amount||0}"/></div>
+      <div><label class="label">Status</label>
+        <select class="input" id="inv-status">
+          ${['unpaid','paid','refunded'].map(s=>`<option value="${s}" ${inv?.status===s?'selected':''}>${s}</option>`).join('')}
+        </select>
+      </div>
+      <div><label class="label">Payment Method</label>
+        <select class="input" id="inv-method">
+          ${['','cash','card','e-transfer','cheque'].map(m=>`<option value="${m}" ${inv?.payment_method===m?'selected':''}>${m||'— Select —'}</option>`).join('')}
+        </select>
+      </div>
+      <div><label class="label">Notes</label><input class="input" id="inv-notes" value="${inv?.notes||''}"/></div>
+    </div>
+    <div class="flex justify-end gap-2 mt-4">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-green" onclick="saveInvoice(${id||'null'})">Save</button>
+    </div>
+  `)
+}
+
+async function saveInvoice(id) {
+  const data = {
+    customer_name: document.getElementById('inv-cname').value,
+    amount: parseFloat(document.getElementById('inv-amt').value)||0,
+    status: document.getElementById('inv-status').value,
+    payment_method: document.getElementById('inv-method').value,
+    notes: document.getElementById('inv-notes').value
+  }
+  if (id) await api.put('/api/invoices/'+id, data)
+  else await api.post('/api/invoices', data)
+  closeModal(); toast('Invoice saved'); loadInvoices()
+}
+
+// ─── Settings ─────────────────────────────────────────────────────────────────
+async function loadSettings() {
+  S.settings = await api.get('/api/settings')
+  renderSettingsTab()
+}
+
+function switchSettingsTab(tab, btn) {
+  S.settingsTab = tab
+  document.querySelectorAll('#settings-tabs .tab-btn').forEach(b=>b.classList.remove('active'))
+  btn.classList.add('active')
+  renderSettingsTab()
+}
+
+function renderSettingsTab() {
+  const el = document.getElementById('settings-content')
+  const st = S.settingsTab
+  if (st==='pricing') {
+    const r = S.settings.load_rates || {}
+    const a = S.settings.access_modifiers || {}
+    el.innerHTML = `
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div class="card">
+          <h3 class="font-head font-700 mb-4">Load Rates</h3>
+          ${[['eighth','1/8 Load'],['quarter','1/4 Load'],['half','1/2 Load'],['three_quarter','3/4 Load'],['full','Full Load']].map(([k,l])=>`
+            <div class="flex items-center justify-between mb-3">
+              <label class="text-sm font-head font-600">${l}</label>
+              <div class="flex items-center gap-1">
+                <span class="text-gray-400">$</span>
+                <input class="input w-24 text-right" type="number" id="lr-${k}" value="${r[k]||0}"/>
+              </div>
+            </div>`).join('')}
+          <button class="btn btn-green mt-2 w-full" onclick="saveLoadRates()">Save Load Rates</button>
+        </div>
+        <div class="card">
+          <h3 class="font-head font-700 mb-4">Access Modifiers</h3>
+          ${[['standard','Standard (no modifier)'],['stairs','Has Stairs'],['long_carry','Long Carry'],['elevator','Elevator']].map(([k,l])=>`
+            <div class="flex items-center justify-between mb-3">
+              <label class="text-sm font-head font-600">${l}</label>
+              <div class="flex items-center gap-1">
+                <span class="text-gray-400">×</span>
+                <input class="input w-20 text-right" type="number" step="0.01" id="am-${k}" value="${a[k]||1}"/>
+              </div>
+            </div>`).join('')}
+          <button class="btn btn-green mt-2 w-full" onclick="saveAccessMods()">Save Modifiers</button>
+        </div>
+        <div class="card">
+          <h3 class="font-head font-700 mb-4">Cost Estimates (for margin calc)</h3>
+          <div class="space-y-3">
+            <div class="flex justify-between items-center">
+              <label class="text-sm font-head font-600">Labor rate / crew member / hr</label>
+              <div class="flex items-center gap-1"><span class="text-gray-400">$</span><input class="input w-20 text-right" type="number" id="s-labor" value="${S.settings.labor_rate_per_crew||35}"/></div>
+            </div>
+            <div class="flex justify-between items-center">
+              <label class="text-sm font-head font-600">Avg crew per job</label>
+              <input class="input w-20 text-right" type="number" id="s-crew" value="${S.settings.avg_crew_per_job||2}"/>
+            </div>
+            <div class="flex justify-between items-center">
+              <label class="text-sm font-head font-600">Avg job hours</label>
+              <input class="input w-20 text-right" type="number" id="s-hrs" value="${S.settings.avg_job_hours||2}"/>
+            </div>
+            <div class="flex justify-between items-center">
+              <label class="text-sm font-head font-600">Fuel per job</label>
+              <div class="flex items-center gap-1"><span class="text-gray-400">$</span><input class="input w-20 text-right" type="number" id="s-fuel" value="${S.settings.fuel_per_job||25}"/></div>
+            </div>
+            <div class="flex justify-between items-center">
+              <label class="text-sm font-head font-600">Default dump fee</label>
+              <div class="flex items-center gap-1"><span class="text-gray-400">$</span><input class="input w-20 text-right" type="number" id="s-dump" value="${S.settings.default_dump_fee||85}"/></div>
+            </div>
+          </div>
+          <button class="btn btn-green mt-4 w-full" onclick="saveCostSettings()">Save Cost Settings</button>
+        </div>
+      </div>`
+  } else if (st==='items') {
+    const items = S.settings.item_prices || {}
+    el.innerHTML = `<div class="card">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="font-head font-700">Item Prices</h3>
+        <button class="btn btn-green" onclick="addItemPrice()">+ Add Item</button>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-2" id="item-price-list">
+        ${Object.entries(items).map(([name,price])=>`
+          <div class="flex items-center gap-2 p-2 border border-gray-100 rounded-xl">
+            <input class="input flex-1 py-1.5" value="${name}" id="iname-${name.replace(/[^a-z0-9]/gi,'_')}"/>
+            <div class="flex items-center gap-1 flex-shrink-0"><span class="text-gray-400 text-sm">$</span>
+              <input class="input w-20 py-1.5 text-right" type="number" value="${price}" id="iprice-${name.replace(/[^a-z0-9]/gi,'_')}"/>
+            </div>
+            <button onclick="removeItem('${name}')" class="text-red-400 hover:text-red-600 text-lg leading-none">✕</button>
+          </div>`).join('')}
+      </div>
+      <button class="btn btn-dark mt-4 w-full" onclick="saveItemPrices()">Save All Item Prices</button>
+    </div>`
+  } else if (st==='surcharges') {
+    const d = S.settings.dense_surcharges || {}
+    const h = S.settings.hazmat_surcharges || {}
+    el.innerHTML = `
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div class="card">
+          <h3 class="font-head font-700 mb-4">Dense Material Surcharges</h3>
+          ${Object.entries(d).map(([name,price])=>`
+            <div class="flex items-center justify-between mb-3">
+              <label class="text-sm font-head font-600">⚠ ${name}</label>
+              <div class="flex items-center gap-1"><span class="text-gray-400">$</span><input class="input w-20 text-right" type="number" id="ds-${name.replace(/[^a-z]/gi,'_')}" value="${price}"/></div>
+            </div>`).join('')}
+          <button class="btn btn-green mt-2 w-full" onclick="saveDenseSurcharges()">Save</button>
+        </div>
+        <div class="card">
+          <h3 class="font-head font-700 mb-4">Hazmat / Special Disposal</h3>
+          ${Object.entries(h).map(([name,price])=>`
+            <div class="flex items-center justify-between mb-3">
+              <label class="text-sm font-head font-600">☢ ${name}</label>
+              <div class="flex items-center gap-1"><span class="text-gray-400">$</span><input class="input w-20 text-right" type="number" id="hs-${name.replace(/[^a-z]/gi,'_')}" value="${price}"/></div>
+            </div>`).join('')}
+          <button class="btn btn-green mt-2 w-full" onclick="saveHazmatSurcharges()">Save</button>
+        </div>
+      </div>`
+  } else if (st==='fleet') {
+    el.innerHTML = `
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div class="card">
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="font-head font-700">Trucks</h3>
+            <button class="btn btn-green" onclick="addTruck()">+ Add Truck</button>
+          </div>
+          <div id="truck-list">
+            ${_trucks.map(t=>`
+              <div class="flex items-center gap-2 p-2 border border-gray-100 rounded-xl mb-2">
+                <div style="width:14px;height:14px;border-radius:50%;background:${t.color||'#78C828'};flex-shrink:0"></div>
+                <div class="flex-1">
+                  <p class="font-head font-600 text-sm">${t.name}</p>
+                  <p class="text-xs text-gray-400">${t.capacity_yards} cu yd · ${t.plate||'No plate'}</p>
+                </div>
+                <button class="btn btn-ghost text-xs py-1 px-2" onclick="editTruck(${t.id})">Edit</button>
+              </div>`).join('')}
+          </div>
+        </div>
+        <div class="card">
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="font-head font-700">Crew Members</h3>
+            <button class="btn btn-green" onclick="addCrewMember()">+ Add Crew</button>
+          </div>
+          <div id="crew-list">
+            ${_crew.map(c=>`
+              <div class="flex items-center gap-2 p-2 border border-gray-100 rounded-xl mb-2">
+                <div class="w-8 h-8 rounded-full bg-green-DEFAULT flex items-center justify-center font-head font-700 text-sm text-ink">${c.name[0]}</div>
+                <div class="flex-1">
+                  <p class="font-head font-600 text-sm">${c.name}</p>
+                  <p class="text-xs text-gray-400">${c.role} · ${c.phone||'No phone'}</p>
+                </div>
+                <button class="btn btn-ghost text-xs py-1 px-2" onclick="editCrewMember(${c.id})">Edit</button>
+              </div>`).join('')}
+          </div>
+        </div>
+      </div>`
+  } else if (st==='company') {
+    const co = S.settings.company || {}
+    el.innerHTML = `<div class="card max-w-lg">
+      <h3 class="font-head font-700 mb-4">Company Info</h3>
+      <div class="space-y-3">
+        <div><label class="label">Company Name</label><input class="input" id="co-name" value="${co.name||''}"/></div>
+        <div><label class="label">Phone</label><input class="input" id="co-phone" value="${co.phone||''}"/></div>
+        <div><label class="label">Email</label><input class="input" id="co-email" value="${co.email||''}"/></div>
+        <div><label class="label">Address</label><input class="input" id="co-addr" value="${co.address||''}"/></div>
+      </div>
+      <div class="mt-5 p-4 bg-blue-50 rounded-xl">
+        <p class="font-head font-600 text-sm text-blue-700 mb-1">QuickBooks & Google Calendar</p>
+        <p class="text-xs text-gray-500">To connect QuickBooks: go to <strong>apps.intuit.com</strong> → connect your account, then paste the OAuth token below.</p>
+        <input class="input mt-2" id="co-qb" placeholder="QuickBooks OAuth token (optional)"/>
+        <p class="text-xs text-gray-400 mt-2">Google Calendar: share your calendar with the CRM's service account or use the Google Calendar API key below.</p>
+        <input class="input mt-2" id="co-gcal" placeholder="Google Calendar API key (optional)"/>
+      </div>
+      <button class="btn btn-green mt-4 w-full" onclick="saveCompany()">Save Company Info</button>
+    </div>`
+  }
+}
+
+// Settings save functions
+async function saveLoadRates() {
+  const keys = ['eighth','quarter','half','three_quarter','full']
+  const rates = {}
+  keys.forEach(k=>{ rates[k] = parseFloat(document.getElementById('lr-'+k).value)||0 })
+  await api.put('/api/settings', {load_rates: rates})
+  S.settings.load_rates = rates; toast('Load rates saved')
+}
+async function saveAccessMods() {
+  const keys = ['standard','stairs','long_carry','elevator']
+  const mods = {}
+  keys.forEach(k=>{ mods[k] = parseFloat(document.getElementById('am-'+k).value)||1 })
+  await api.put('/api/settings', {access_modifiers: mods})
+  S.settings.access_modifiers = mods; toast('Modifiers saved')
+}
+async function saveCostSettings() {
+  const data = {
+    labor_rate_per_crew: parseFloat(document.getElementById('s-labor').value)||35,
+    avg_crew_per_job: parseFloat(document.getElementById('s-crew').value)||2,
+    avg_job_hours: parseFloat(document.getElementById('s-hrs').value)||2,
+    fuel_per_job: parseFloat(document.getElementById('s-fuel').value)||25,
+    default_dump_fee: parseFloat(document.getElementById('s-dump').value)||85
+  }
+  await api.put('/api/settings', data)
+  Object.assign(S.settings, data); toast('Cost settings saved')
+}
+async function saveItemPrices() {
+  const items = {}
+  document.querySelectorAll('[id^="iname-"]').forEach(inp=>{
+    const key = inp.id.replace('iname-','')
+    const name = inp.value.trim()
+    const price = parseFloat(document.getElementById('iprice-'+key)?.value)||0
+    if (name) items[name] = price
+  })
+  await api.put('/api/settings', {item_prices: items})
+  S.settings.item_prices = items; toast('Item prices saved')
+}
+function removeItem(name) {
+  delete S.settings.item_prices[name]
+  renderSettingsTab()
+}
+function addItemPrice() {
+  if (!S.settings.item_prices) S.settings.item_prices = {}
+  S.settings.item_prices['New Item'] = 0
+  renderSettingsTab()
+}
+async function saveDenseSurcharges() {
+  const d = {}
+  document.querySelectorAll('[id^="ds-"]').forEach(inp=>{
+    const name = inp.id.replace('ds-','').replace(/_/g,' ')
+    d[name] = parseFloat(inp.value)||0
+  })
+  await api.put('/api/settings', {dense_surcharges: d})
+  S.settings.dense_surcharges = d; toast('Dense surcharges saved')
+}
+async function saveHazmatSurcharges() {
+  const h = {}
+  document.querySelectorAll('[id^="hs-"]').forEach(inp=>{
+    const name = inp.id.replace('hs-','').replace(/_/g,' ')
+    h[name] = parseFloat(inp.value)||0
+  })
+  await api.put('/api/settings', {hazmat_surcharges: h})
+  S.settings.hazmat_surcharges = h; toast('Hazmat surcharges saved')
+}
+async function saveCompany() {
+  const co = {
+    name: document.getElementById('co-name').value,
+    phone: document.getElementById('co-phone').value,
+    email: document.getElementById('co-email').value,
+    address: document.getElementById('co-addr').value
+  }
+  await api.put('/api/settings', {company: co})
+  S.settings.company = co; toast('Company info saved')
+}
+
+function addTruck() {
+  showModal(`
+    <h2 class="font-head font-700 mb-4">Add Truck</h2>
+    <div class="space-y-3">
+      <div><label class="label">Truck Name</label><input class="input" id="tm-name" placeholder="Truck 3"/></div>
+      <div><label class="label">Capacity (cu yd)</label><input class="input" type="number" id="tm-cap" value="15"/></div>
+      <div><label class="label">License Plate</label><input class="input" id="tm-plate"/></div>
+    </div>
+    <div class="flex justify-end gap-2 mt-4">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-green" onclick="saveTruck(null)">Add Truck</button>
+    </div>
+  `)
+}
+function editTruck(id) {
+  const t = _trucks.find(x=>x.id===id)
+  showModal(`
+    <h2 class="font-head font-700 mb-4">Edit ${t.name}</h2>
+    <div class="space-y-3">
+      <div><label class="label">Truck Name</label><input class="input" id="tm-name" value="${t.name}"/></div>
+      <div><label class="label">Capacity (cu yd)</label><input class="input" type="number" id="tm-cap" value="${t.capacity_yards}"/></div>
+      <div><label class="label">License Plate</label><input class="input" id="tm-plate" value="${t.plate||''}"/></div>
+    </div>
+    <div class="flex justify-end gap-2 mt-4">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-green" onclick="saveTruck(${id})">Save</button>
+    </div>
+  `)
+}
+async function saveTruck(id) {
+  const data = { name: document.getElementById('tm-name').value, capacity_yards: parseFloat(document.getElementById('tm-cap').value)||15, plate: document.getElementById('tm-plate').value }
+  if (id) await api.put('/api/trucks/'+id, data)
+  else await api.post('/api/trucks', data)
+  _trucks = await api.get('/api/trucks')
+  closeModal(); toast('Truck saved'); renderSettingsTab()
+}
+
+function addCrewMember() {
+  showModal(`
+    <h2 class="font-head font-700 mb-4">Add Crew Member</h2>
+    <div class="space-y-3">
+      <div><label class="label">Name</label><input class="input" id="crm-name"/></div>
+      <div><label class="label">Role</label><select class="input" id="crm-role"><option value="crew">Crew</option><option value="driver">Driver</option><option value="lead">Lead</option><option value="owner">Owner</option></select></div>
+      <div><label class="label">Phone</label><input class="input" id="crm-phone"/></div>
+    </div>
+    <div class="flex justify-end gap-2 mt-4">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-green" onclick="saveCrewMember(null)">Add</button>
+    </div>
+  `)
+}
+function editCrewMember(id) {
+  const c = _crew.find(x=>x.id===id)
+  showModal(`
+    <h2 class="font-head font-700 mb-4">Edit ${c.name}</h2>
+    <div class="space-y-3">
+      <div><label class="label">Name</label><input class="input" id="crm-name" value="${c.name}"/></div>
+      <div><label class="label">Role</label><select class="input" id="crm-role"><option value="crew" ${c.role==='crew'?'selected':''}>Crew</option><option value="driver" ${c.role==='driver'?'selected':''}>Driver</option><option value="lead" ${c.role==='lead'?'selected':''}>Lead</option><option value="owner" ${c.role==='owner'?'selected':''}>Owner</option></select></div>
+      <div><label class="label">Phone</label><input class="input" id="crm-phone" value="${c.phone||''}"/></div>
+    </div>
+    <div class="flex justify-end gap-2 mt-4">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-green" onclick="saveCrewMember(${id})">Save</button>
+    </div>
+  `)
+}
+async function saveCrewMember(id) {
+  const data = { name: document.getElementById('crm-name').value, role: document.getElementById('crm-role').value, phone: document.getElementById('crm-phone').value }
+  if (id) await api.put('/api/crew/'+id, data)
+  else await api.post('/api/crew', data)
+  _crew = await api.get('/api/crew')
+  closeModal(); toast('Crew member saved'); renderSettingsTab()
+}
+
+// ─── Init ─────────────────────────────────────────────────────────────────────
+async function init() {
+  S.settings = await api.get('/api/settings')
+  ;[_trucks, _crew] = await Promise.all([api.get('/api/trucks'), api.get('/api/crew')])
+  loadDashboard()
+}
+
+init()
+</script>
+</body>
+</html>
